@@ -37,14 +37,18 @@ export class AssetsPanelComponent implements OnInit {
     const project = this.editorStore.activeProject();
     if (!project) return;
 
+    const assetRecord = asset as Asset & { _id?: string; secure_url?: string };
+    const assetIdentifier = asset.id ?? assetRecord._id ?? asset.cloudinaryPublicId;
+    const imageUrl = asset.url ?? assetRecord.secure_url ?? '';
+
     const defaultWidth = 200;
     const defaultHeight = 200;
 
     const layer: Layer = {
       id: crypto.randomUUID(),
       type: 'image',
-      assetId: asset.id,
-      content: asset.url,
+      assetId: assetIdentifier,
+      content: imageUrl,
       // Add in the project center so users can see it immediately.
       properties: {
         x: project.width / 2,
@@ -56,6 +60,7 @@ export class AssetsPanelComponent implements OnInit {
       },
     };
     this.editorStore.addLayer(layer);
+    this.editorStore.setActiveTool('select');
     this.editorStore.selectLayers([layer.id]);
   }
 

@@ -7,6 +7,7 @@ import {
   ViewChild,
   effect,
   inject,
+  untracked,
 } from '@angular/core';
 import * as fabric from 'fabric';
 import { EditorStore } from '../../../application/stores/editor.store';
@@ -36,7 +37,8 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const layers = this.editorStore.layers();
       if (this.canvas) {
-        this.renderLayers(layers);
+        // Only re-render on layer mutations, not on selection signal updates.
+        untracked(() => this.renderLayers(layers));
       }
     });
 
@@ -133,7 +135,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     this.canvas.clear();
     try {
       for (const layer of layers) {
-      if (layer.type === 'image' && layer.assetId) {
+      if (layer.type === 'image') {
         const imageUrl = layer.content;
         if (imageUrl) {
           const imgEl = new Image();
@@ -147,12 +149,13 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
               this.applyObjectInteractivity(imageObj, this.editorStore.canEdit());
               imageObj.scaleToWidth(layer.properties.width);
               imageObj.scaleToHeight(layer.properties.height);
+              imageObj.setCoords();
               (imageObj as fabric.FabricImage & { layerId: string }).layerId = layer.id;
               this.canvas.add(imageObj);
               if (selectedIds.includes(layer.id)) {
                 this.canvas.setActiveObject(imageObj);
               }
-              this.canvas.renderAll();
+              this.canvas.requestRenderAll();
             } catch {
               this.addImageFallback(layer, selectedIds.includes(layer.id));
             }
@@ -274,7 +277,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     if (shouldActivate) {
       this.canvas.setActiveObject(fallback);
     }
-    this.canvas.renderAll();
+    this.canvas.requestRenderAll();
   }
 
   private applyObjectInteractivity(obj: fabric.FabricObject, canEdit: boolean): void {
