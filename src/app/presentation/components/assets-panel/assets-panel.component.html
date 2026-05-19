@@ -21,6 +21,8 @@
     <p class="text-xs text-red-500">{{ error() }}</p>
   }
 
+  <p class="text-[11px] text-gray-400 mb-2">Single click an image to add it to the canvas.</p>
+
   <div class="grid grid-cols-2 gap-2">
     @for (asset of assets(); track asset.id) {
       <button

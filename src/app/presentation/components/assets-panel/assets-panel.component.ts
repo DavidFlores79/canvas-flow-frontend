@@ -34,12 +34,26 @@ export class AssetsPanelComponent implements OnInit {
 
   addToCanvas(asset: Asset): void {
     if (!this.editorStore.canEdit()) return;
+    const project = this.editorStore.activeProject();
+    if (!project) return;
+
+    const defaultWidth = 200;
+    const defaultHeight = 200;
+
     const layer: Layer = {
       id: crypto.randomUUID(),
       type: 'image',
       assetId: asset.id,
       content: asset.url,
-      properties: { x: 100, y: 100, width: 200, height: 200, rotation: 0, zIndex: 0 },
+      // Add in the project center so users can see it immediately.
+      properties: {
+        x: project.width / 2,
+        y: project.height / 2,
+        width: defaultWidth,
+        height: defaultHeight,
+        rotation: 0,
+        zIndex: 0,
+      },
     };
     this.editorStore.addLayer(layer);
     this.editorStore.selectLayers([layer.id]);
