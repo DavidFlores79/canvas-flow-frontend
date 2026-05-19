@@ -1,0 +1,66 @@
+<div class="h-screen flex flex-col bg-gray-100 overflow-hidden">
+  <!-- App header -->
+  <header class="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/dashboard" class="text-sm text-gray-600 hover:text-gray-900">Back</a>
+      <span class="text-gray-300">|</span>
+      <span class="font-semibold text-gray-800">
+        {{ editorStore.activeProject()?.name ?? 'Loading...' }}
+      </span>
+    </div>
+    <div class="flex items-center gap-3">
+      <app-org-switcher />
+      <span class="text-xs text-gray-400">{{ authStore.orgRole() }}</span>
+    </div>
+  </header>
+
+  <!-- Toolbar -->
+  <app-toolbar class="flex-shrink-0" />
+
+  @if (isLoading()) {
+    <div class="flex-1 flex items-center justify-center">
+      <p class="text-gray-400">Loading editor...</p>
+    </div>
+  } @else if (error()) {
+    <div class="flex-1 flex items-center justify-center">
+      <p class="text-red-500">{{ error() }}</p>
+    </div>
+  } @else {
+    <!-- Editor workspace -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Left sidebar: tabs -->
+      <aside class="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-y-auto">
+        <div class="flex border-b border-gray-200">
+          @for (tab of tabs; track tab.key) {
+            <button
+              class="flex-1 text-xs py-2 transition-colors"
+              [class.bg-blue-50]="activeTab() === tab.key"
+              [class.text-blue-700]="activeTab() === tab.key"
+              [class.text-gray-500]="activeTab() !== tab.key"
+              (click)="setTab(tab.key)"
+            >{{ tab.label }}</button>
+          }
+        </div>
+
+        @switch (activeTab()) {
+          @case ('layers') { <app-layers-panel /> }
+          @case ('assets') { <app-assets-panel /> }
+          @case ('ai') { <app-ai-panel /> }
+        }
+      </aside>
+
+      <!-- Canvas area -->
+      <main class="flex-1 overflow-auto flex items-start justify-center p-8">
+        <app-canvas
+          [width]="editorStore.activeProject()?.width ?? 1200"
+          [height]="editorStore.activeProject()?.height ?? 800"
+        />
+      </main>
+
+      <!-- Right sidebar: inspector -->
+      <aside class="w-52 flex-shrink-0 bg-white border-l border-gray-200 overflow-y-auto">
+        <app-inspector />
+      </aside>
+    </div>
+  }
+</div>

@@ -1,0 +1,15 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "Back" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+      - generic [ref=e8]: "|"
+      - generic [ref=e9]: Loading...
+    - generic [ref=e11]: owner
+  - generic [ref=e13]:
+    - button "Select" [disabled] [ref=e14]
+    - button "Text" [disabled] [ref=e15]
+    - button "Shape" [disabled] [ref=e16]
+    - button "Undo" [disabled] [ref=e18]
+    - button "Redo" [disabled] [ref=e19]
+  - paragraph [ref=e21]: Loading editor...

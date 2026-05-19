@@ -1,0 +1,51 @@
+- generic [ref=e1]:
+  - generic [ref=e35]:
+    - banner [ref=e36]:
+      - generic [ref=e37]:
+        - link "Back" [ref=e38] [cursor=pointer]:
+          - /url: /dashboard
+        - generic [ref=e39]: "|"
+        - generic [ref=e40]: Test Project
+      - generic [ref=e42]: owner
+    - generic [ref=e44]:
+      - button "Select" [ref=e45] [cursor=pointer]
+      - button "Text" [ref=e46] [cursor=pointer]
+      - button "Shape" [ref=e47] [cursor=pointer]
+      - button "Undo" [ref=e49] [cursor=pointer]
+      - button "Redo" [ref=e50] [cursor=pointer]
+    - generic [ref=e51]:
+      - complementary [ref=e52]:
+        - generic [ref=e53]:
+          - button "Layers" [ref=e54] [cursor=pointer]
+          - button "Assets" [ref=e55] [cursor=pointer]
+          - button "AI" [ref=e56] [cursor=pointer]
+        - generic [ref=e58]:
+          - heading "Layers" [level=3] [ref=e59]
+          - list [ref=e72]:
+            - listitem [ref=e73] [cursor=pointer]:
+              - generic [ref=e74]: text — ebe310dd
+              - button "✕" [ref=e75]
+      - main [ref=e61]
+      - complementary [ref=e67]:
+        - generic [ref=e69]:
+          - heading "Inspector" [level=3] [ref=e70]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - generic [ref=e78]: Type
+              - generic [ref=e79]: text
+            - generic [ref=e80]:
+              - generic [ref=e81]: X
+              - generic [ref=e82]: "959.5"
+            - generic [ref=e83]:
+              - generic [ref=e84]: "Y"
+              - generic [ref=e85]: "376"
+            - generic [ref=e86]:
+              - generic [ref=e87]: W
+              - generic [ref=e88]: "200"
+            - generic [ref=e89]:
+              - generic [ref=e90]: H
+              - generic [ref=e91]: "40"
+            - generic [ref=e92]:
+              - generic [ref=e93]: Rotation
+              - generic [ref=e94]: 0°
+  - textbox [active] [ref=e95]: Text

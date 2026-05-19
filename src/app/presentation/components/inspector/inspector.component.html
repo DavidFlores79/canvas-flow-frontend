@@ -1,0 +1,34 @@
+<div class="p-4">
+  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Inspector</h3>
+  @if (editorStore.selectedLayers().length === 1) {
+    @let layer = editorStore.selectedLayers()[0];
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span class="text-gray-500">Type</span>
+        <span class="font-medium">{{ layer.type }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">X</span>
+        <span class="font-medium">{{ layer.properties.x }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Y</span>
+        <span class="font-medium">{{ layer.properties.y }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">W</span>
+        <span class="font-medium">{{ layer.properties.width }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">H</span>
+        <span class="font-medium">{{ layer.properties.height }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Rotation</span>
+        <span class="font-medium">{{ layer.properties.rotation }}°</span>
+      </div>
+    </div>
+  } @else {
+    <p class="text-xs text-gray-400">Select a layer to inspect</p>
+  }
+</div>
