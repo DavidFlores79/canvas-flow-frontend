@@ -28,6 +28,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasEl', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
 
   private canvas!: fabric.Canvas;
+  private _isRendering = false;
   protected readonly editorStore = inject(EditorStore);
 
   constructor() {
@@ -48,6 +49,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     });
 
     this.canvas.on('selection:created', (e) => {
+      if (this._isRendering) return;
       const ids = (e.selected ?? [])
         .map((obj) => (obj as fabric.FabricObject & { layerId?: string }).layerId)
         .filter((id): id is string => typeof id === 'string');
@@ -55,6 +57,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     });
 
     this.canvas.on('selection:updated', (e) => {
+      if (this._isRendering) return;
       const ids = (e.selected ?? [])
         .map((obj) => (obj as fabric.FabricObject & { layerId?: string }).layerId)
         .filter((id): id is string => typeof id === 'string');
@@ -62,10 +65,12 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     });
 
     this.canvas.on('selection:cleared', () => {
+      if (this._isRendering) return;
       this.editorStore.selectLayers([]);
     });
 
     this.canvas.on('object:modified', (e) => {
+      if (this._isRendering) return;
       const obj = e.target as fabric.FabricObject & { layerId?: string };
       if (obj?.layerId) {
         this.editorStore.updateLayer(obj.layerId, {
@@ -115,7 +120,9 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
 
   renderLayers(layers: Layer[]): void {
     if (!this.canvas) return;
+    this._isRendering = true;
     this.canvas.clear();
+    this._isRendering = false;
     for (const layer of layers) {
       if (layer.type === 'image' && layer.assetId) {
         // Placeholder rect for image layers
