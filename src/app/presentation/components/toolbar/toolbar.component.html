@@ -1,0 +1,29 @@
+<div class="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200">
+  @for (tool of tools; track tool.key) {
+    <button
+      class="px-3 py-1 text-sm rounded-md transition-colors"
+      [class.bg-blue-100]="editorStore.activeTool() === tool.key"
+      [class.text-blue-700]="editorStore.activeTool() === tool.key"
+      [class.bg-gray-100]="editorStore.activeTool() !== tool.key"
+      [class.text-gray-700]="editorStore.activeTool() !== tool.key"
+      [disabled]="!editorStore.canEdit()"
+      (click)="selectTool(tool.key)"
+    >
+      {{ tool.label }}
+    </button>
+  }
+
+  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+
+  <button
+    class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+    [disabled]="!editorStore.canEdit()"
+    (click)="undo()"
+  >Undo</button>
+
+  <button
+    class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+    [disabled]="!editorStore.canEdit()"
+    (click)="redo()"
+  >Redo</button>
+</div>
