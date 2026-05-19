@@ -45,10 +45,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       if (!this.canvas) return;
       this.canvas.selection = canEdit;
       this.canvas.forEachObject((obj) => {
-        obj.set({ selectable: canEdit, evented: canEdit });
-        if (obj instanceof fabric.Textbox || obj instanceof fabric.IText) {
-          obj.set({ editable: canEdit });
-        }
+        this.applyObjectInteractivity(obj, canEdit);
       });
       this.canvas.requestRenderAll();
     });
@@ -146,24 +143,26 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
                 left: layer.properties.x,
                 top: layer.properties.y,
                 angle: layer.properties.rotation,
-                selectable: canEdit,
-                evented: canEdit,
               });
+              this.applyObjectInteractivity(imageObj, this.editorStore.canEdit());
               imageObj.scaleToWidth(layer.properties.width);
               imageObj.scaleToHeight(layer.properties.height);
               (imageObj as fabric.FabricImage & { layerId: string }).layerId = layer.id;
               this.canvas.add(imageObj);
+              if (selectedIds.includes(layer.id)) {
+                this.canvas.setActiveObject(imageObj);
+              }
               this.canvas.renderAll();
             } catch {
-              this.addImageFallback(layer, canEdit);
+              this.addImageFallback(layer, selectedIds.includes(layer.id));
             }
           };
           imgEl.onerror = () => {
-            this.addImageFallback(layer, canEdit);
+            this.addImageFallback(layer, selectedIds.includes(layer.id));
           };
           imgEl.src = imageUrl;
         } else {
-          this.addImageFallback(layer, canEdit);
+          this.addImageFallback(layer, selectedIds.includes(layer.id));
         }
       } else if (layer.type === 'text') {
         const text = new fabric.Textbox(layer.content ?? 'Text', {
@@ -171,11 +170,11 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
           top: layer.properties.y,
           width: layer.properties.width,
           angle: layer.properties.rotation,
-          selectable: canEdit,
-          evented: canEdit,
           editable: canEdit,
           lockScalingY: true,
         });
+        this.applyObjectInteractivity(text, canEdit);
+        text.set({ lockScalingY: true });
         (text as fabric.Textbox & { layerId: string }).layerId = layer.id;
         this.canvas.add(text);
       } else {
@@ -188,9 +187,8 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
           fill: '#dbeafe',
           stroke: '#60a5fa',
           strokeWidth: 1,
-          selectable: canEdit,
-          evented: canEdit,
         });
+        this.applyObjectInteractivity(rect, canEdit);
         (rect as fabric.Rect & { layerId: string }).layerId = layer.id;
         this.canvas.add(rect);
       }
@@ -258,7 +256,8 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     this.editorStore.updateLayer(layerId, patch);
   }
 
-  private addImageFallback(layer: Layer, canEdit: boolean): void {
+  private addImageFallback(layer: Layer, shouldActivate: boolean): void {
+    const canEdit = this.editorStore.canEdit();
     const fallback = new fabric.Rect({
       left: layer.properties.x,
       top: layer.properties.y,
@@ -268,12 +267,30 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       fill: '#e2e8f0',
       stroke: '#94a3b8',
       strokeWidth: 1,
-      selectable: canEdit,
-      evented: canEdit,
     });
+    this.applyObjectInteractivity(fallback, canEdit);
     (fallback as fabric.Rect & { layerId: string }).layerId = layer.id;
     this.canvas.add(fallback);
+    if (shouldActivate) {
+      this.canvas.setActiveObject(fallback);
+    }
     this.canvas.renderAll();
+  }
+
+  private applyObjectInteractivity(obj: fabric.FabricObject, canEdit: boolean): void {
+    obj.set({
+      selectable: canEdit,
+      evented: canEdit,
+      hasControls: canEdit,
+      lockMovementX: !canEdit,
+      lockMovementY: !canEdit,
+      lockScalingX: !canEdit,
+      lockScalingY: !canEdit,
+      lockRotation: !canEdit,
+    });
+    if (obj instanceof fabric.Textbox || obj instanceof fabric.IText) {
+      obj.set({ editable: canEdit });
+    }
   }
 
   ngOnDestroy(): void {
