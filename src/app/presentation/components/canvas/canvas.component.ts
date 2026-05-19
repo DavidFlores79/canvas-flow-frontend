@@ -73,12 +73,34 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       if (this._isRendering) return;
       const obj = e.target as fabric.FabricObject & { layerId?: string };
       if (obj?.layerId) {
-        this.editorStore.updateLayer(obj.layerId, {
+        const patch: Partial<Layer> = {
           properties: {
             x: obj.left ?? 0,
             y: obj.top ?? 0,
-            width: obj.width ?? 0,
-            height: obj.height ?? 0,
+            width: obj.getScaledWidth(),
+            height: obj.getScaledHeight(),
+            rotation: obj.angle ?? 0,
+            zIndex: this.canvas.getObjects().indexOf(obj),
+          },
+        };
+        if (obj instanceof fabric.IText) {
+          patch.content = (obj as fabric.IText).text;
+        }
+        this.editorStore.updateLayer(obj.layerId, patch);
+      }
+    });
+
+    this.canvas.on('text:editing:exited', (e) => {
+      if (this._isRendering) return;
+      const obj = e.target as fabric.IText & { layerId?: string };
+      if (obj?.layerId) {
+        this.editorStore.updateLayer(obj.layerId, {
+          content: obj.text,
+          properties: {
+            x: obj.left ?? 0,
+            y: obj.top ?? 0,
+            width: obj.getScaledWidth(),
+            height: obj.getScaledHeight(),
             rotation: obj.angle ?? 0,
             zIndex: this.canvas.getObjects().indexOf(obj),
           },
