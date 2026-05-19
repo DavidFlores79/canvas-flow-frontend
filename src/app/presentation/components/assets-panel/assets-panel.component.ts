@@ -34,10 +34,12 @@ export class AssetsPanelComponent implements OnInit {
 
   addToCanvas(asset: Asset): void {
     if (!this.editorStore.canEdit()) return;
+    if (asset.type !== 'image') return;
     const layer: Layer = {
       id: crypto.randomUUID(),
       type: 'image',
       assetId: asset.id,
+      content: asset.url,
       properties: { x: 100, y: 100, width: 200, height: 200, rotation: 0, zIndex: 0 },
     };
     this.editorStore.addLayer(layer);

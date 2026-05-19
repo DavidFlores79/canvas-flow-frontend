@@ -137,21 +137,58 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     try {
       for (const layer of layers) {
       if (layer.type === 'image' && layer.assetId) {
-        // Placeholder rect for image layers
-        const rect = new fabric.Rect({
-          left: layer.properties.x,
-          top: layer.properties.y,
-          width: layer.properties.width,
-          height: layer.properties.height,
-          angle: layer.properties.rotation,
-          fill: '#e2e8f0',
-          stroke: '#94a3b8',
-          strokeWidth: 1,
-          selectable: canEdit,
-          evented: canEdit,
-        });
-        (rect as fabric.Rect & { layerId: string }).layerId = layer.id;
-        this.canvas.add(rect);
+        const imageUrl = layer.content;
+        if (imageUrl) {
+          const imgEl = new Image();
+          imgEl.crossOrigin = 'anonymous';
+          imgEl.onload = () => {
+            const imageObj = new fabric.FabricImage(imgEl, {
+              left: layer.properties.x,
+              top: layer.properties.y,
+              angle: layer.properties.rotation,
+              selectable: canEdit,
+              evented: canEdit,
+            });
+            imageObj.scaleToWidth(layer.properties.width);
+            imageObj.scaleToHeight(layer.properties.height);
+            (imageObj as fabric.FabricImage & { layerId: string }).layerId = layer.id;
+            this.canvas.add(imageObj);
+            this.canvas.renderAll();
+          };
+          imgEl.onerror = () => {
+            const fallback = new fabric.Rect({
+              left: layer.properties.x,
+              top: layer.properties.y,
+              width: layer.properties.width,
+              height: layer.properties.height,
+              angle: layer.properties.rotation,
+              fill: '#e2e8f0',
+              stroke: '#94a3b8',
+              strokeWidth: 1,
+              selectable: canEdit,
+              evented: canEdit,
+            });
+            (fallback as fabric.Rect & { layerId: string }).layerId = layer.id;
+            this.canvas.add(fallback);
+            this.canvas.renderAll();
+          };
+          imgEl.src = imageUrl;
+        } else {
+          const fallback = new fabric.Rect({
+            left: layer.properties.x,
+            top: layer.properties.y,
+            width: layer.properties.width,
+            height: layer.properties.height,
+            angle: layer.properties.rotation,
+            fill: '#e2e8f0',
+            stroke: '#94a3b8',
+            strokeWidth: 1,
+            selectable: canEdit,
+            evented: canEdit,
+          });
+          (fallback as fabric.Rect & { layerId: string }).layerId = layer.id;
+          this.canvas.add(fallback);
+        }
       } else if (layer.type === 'text') {
         const text = new fabric.Textbox(layer.content ?? 'Text', {
           left: layer.properties.x,
@@ -210,7 +247,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     let width = obj.getScaledWidth();
     let height = obj.getScaledHeight();
 
-    if (obj instanceof fabric.Rect) {
+    if (obj instanceof fabric.Rect || obj instanceof fabric.FabricImage) {
       const nextWidth = (obj.width ?? 0) * (obj.scaleX ?? 1);
       const nextHeight = (obj.height ?? 0) * (obj.scaleY ?? 1);
       obj.set({ width: nextWidth, height: nextHeight, scaleX: 1, scaleY: 1 });
