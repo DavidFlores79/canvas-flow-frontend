@@ -40,6 +40,9 @@ export class AssetsPanelComponent implements OnInit {
     const assetRecord = asset as Asset & { _id?: string; secure_url?: string };
     const assetIdentifier = asset.id ?? assetRecord._id ?? asset.cloudinaryPublicId;
     const imageUrl = asset.url ?? assetRecord.secure_url ?? '';
+    const nextZIndex = this.editorStore
+      .layers()
+      .reduce((max, layer) => Math.max(max, layer.properties.zIndex), -1) + 1;
 
     const defaultWidth = 200;
     const defaultHeight = 200;
@@ -56,7 +59,7 @@ export class AssetsPanelComponent implements OnInit {
         width: defaultWidth,
         height: defaultHeight,
         rotation: 0,
-        zIndex: 0,
+        zIndex: nextZIndex,
       },
     };
     this.editorStore.addLayer(layer);

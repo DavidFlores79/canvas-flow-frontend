@@ -50,7 +50,7 @@
       </aside>
 
       <!-- Canvas area -->
-      <main class="flex-1 overflow-auto flex items-start justify-center p-8">
+      <main #canvasViewport class="flex-1 overflow-auto flex items-start justify-center p-8">
         <app-canvas
           [width]="editorStore.activeProject()?.width ?? 1200"
           [height]="editorStore.activeProject()?.height ?? 800"

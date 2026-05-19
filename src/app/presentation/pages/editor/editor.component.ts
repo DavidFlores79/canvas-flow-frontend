@@ -1,4 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../application/stores/auth.store';
@@ -35,7 +44,7 @@ interface TabItem {
   ],
   templateUrl: './editor.component.html',
 })
-export class EditorComponent implements OnInit {
+export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly authStore = inject(AuthStore);
   protected readonly editorStore = inject(EditorStore);
   private readonly route = inject(ActivatedRoute);
@@ -53,6 +62,9 @@ export class EditorComponent implements OnInit {
     { key: 'assets', label: 'Assets' },
     { key: 'ai', label: 'AI' },
   ];
+
+  @ViewChild('canvasViewport') canvasViewport?: ElementRef<HTMLElement>;
+  private resizeObserver?: ResizeObserver;
 
   async ngOnInit(): Promise<void> {
     const workspaceId = this.route.snapshot.paramMap.get('workspaceId');
@@ -95,5 +107,30 @@ export class EditorComponent implements OnInit {
 
   setTab(tab: SideTab): void {
     this.activeTab.set(tab);
+  }
+
+  ngAfterViewInit(): void {
+    const viewportEl = this.canvasViewport?.nativeElement;
+    if (!viewportEl) return;
+
+    const updateViewport = (): void => {
+      const styles = getComputedStyle(viewportEl);
+      const horizontalPadding =
+        parseFloat(styles.paddingLeft || '0') + parseFloat(styles.paddingRight || '0');
+      const verticalPadding =
+        parseFloat(styles.paddingTop || '0') + parseFloat(styles.paddingBottom || '0');
+
+      const usableWidth = Math.max(0, viewportEl.clientWidth - horizontalPadding);
+      const usableHeight = Math.max(0, viewportEl.clientHeight - verticalPadding);
+      this.editorStore.setViewportSize(usableWidth, usableHeight);
+    };
+
+    updateViewport();
+    this.resizeObserver = new ResizeObserver(() => updateViewport());
+    this.resizeObserver.observe(viewportEl);
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
   }
 }

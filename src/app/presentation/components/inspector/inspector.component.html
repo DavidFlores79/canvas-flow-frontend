@@ -1,5 +1,45 @@
 <div class="p-4">
   <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Inspector</h3>
+
+  @if (editorStore.activeProject()) {
+    <div class="mb-4 border border-gray-200 rounded-md p-3 space-y-2">
+      <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Canvas Size</p>
+
+      <label class="block text-xs text-gray-500">
+        Width
+        <input
+          type="number"
+          min="320"
+          class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+          [value]="canvasWidth()"
+          (input)="onWidthInput($event)"
+        />
+      </label>
+
+      <label class="block text-xs text-gray-500">
+        Height
+        <input
+          type="number"
+          min="240"
+          class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+          [value]="canvasHeight()"
+          (input)="onHeightInput($event)"
+        />
+      </label>
+
+      <div class="flex gap-2">
+        <button
+          class="flex-1 text-xs bg-blue-50 text-blue-700 rounded px-2 py-1 hover:bg-blue-100"
+          (click)="applyCanvasSize()"
+        >Apply</button>
+        <button
+          class="flex-1 text-xs bg-gray-100 text-gray-700 rounded px-2 py-1 hover:bg-gray-200"
+          (click)="fitCanvasToViewport()"
+        >Fit to Space</button>
+      </div>
+    </div>
+  }
+
   @if (editorStore.selectedLayers().length === 1) {
     @let layer = editorStore.selectedLayers()[0];
     <div class="space-y-2 text-sm">

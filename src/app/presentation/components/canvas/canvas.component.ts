@@ -3,7 +3,9 @@ import {
   Component,
   ElementRef,
   Input,
+  OnChanges,
   OnDestroy,
+  SimpleChanges,
   ViewChild,
   effect,
   inject,
@@ -22,7 +24,7 @@ import { Layer } from '../../../domain/models/layer.model';
     </div>
   `,
 })
-export class CanvasComponent implements AfterViewInit, OnDestroy {
+export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() width = 1200;
   @Input() height = 800;
 
@@ -102,6 +104,9 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       if (e.target) return; // clicked on an existing object
 
       const point = e.scenePoint ?? this.canvas.getScenePoint(e.e);
+      const nextZIndex = this.editorStore
+        .layers()
+        .reduce((max, layer) => Math.max(max, layer.properties.zIndex), -1) + 1;
       let layer: Layer;
 
       if (tool === 'text') {
@@ -109,13 +114,27 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
           id: crypto.randomUUID(),
           type: 'text',
           content: 'Text',
-          properties: { x: point.x, y: point.y, width: 200, height: 40, rotation: 0, zIndex: 0 },
+          properties: {
+            x: point.x,
+            y: point.y,
+            width: 200,
+            height: 40,
+            rotation: 0,
+            zIndex: nextZIndex,
+          },
         };
       } else {
         layer = {
           id: crypto.randomUUID(),
           type: 'shape',
-          properties: { x: point.x, y: point.y, width: 150, height: 150, rotation: 0, zIndex: 0 },
+          properties: {
+            x: point.x,
+            y: point.y,
+            width: 150,
+            height: 150,
+            rotation: 0,
+            zIndex: nextZIndex,
+          },
         };
       }
 
@@ -127,6 +146,15 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     this.renderLayers(this.editorStore.layers());
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.canvas) return;
+    if (!changes['width'] && !changes['height']) return;
+
+    this.canvas.setDimensions({ width: this.width, height: this.height });
+    this.canvas.calcOffset();
+    this.canvas.requestRenderAll();
+  }
+
   renderLayers(layers: Layer[]): void {
     if (!this.canvas) return;
     const selectedIds = this.editorStore.selectedLayerIds();
@@ -134,7 +162,8 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     this._isRendering = true;
     this.canvas.clear();
     try {
-      for (const layer of layers) {
+      const orderedLayers = [...layers].sort((a, b) => a.properties.zIndex - b.properties.zIndex);
+      for (const layer of orderedLayers) {
       if (layer.type === 'image') {
         const imageUrl = layer.content;
         if (imageUrl) {
@@ -152,6 +181,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
               imageObj.setCoords();
               (imageObj as fabric.FabricImage & { layerId: string }).layerId = layer.id;
               this.canvas.add(imageObj);
+              this.moveObjectToZIndex(imageObj, layer.properties.zIndex);
               if (selectedIds.includes(layer.id)) {
                 this.canvas.setActiveObject(imageObj);
               }
@@ -180,6 +210,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
         text.set({ lockScalingY: true });
         (text as fabric.Textbox & { layerId: string }).layerId = layer.id;
         this.canvas.add(text);
+        this.moveObjectToZIndex(text, layer.properties.zIndex);
       } else {
         const rect = new fabric.Rect({
           left: layer.properties.x,
@@ -194,6 +225,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
         this.applyObjectInteractivity(rect, canEdit);
         (rect as fabric.Rect & { layerId: string }).layerId = layer.id;
         this.canvas.add(rect);
+        this.moveObjectToZIndex(rect, layer.properties.zIndex);
       }
     }
     // Restore selection after re-render
@@ -274,10 +306,19 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     this.applyObjectInteractivity(fallback, canEdit);
     (fallback as fabric.Rect & { layerId: string }).layerId = layer.id;
     this.canvas.add(fallback);
+    this.moveObjectToZIndex(fallback, layer.properties.zIndex);
     if (shouldActivate) {
       this.canvas.setActiveObject(fallback);
     }
     this.canvas.requestRenderAll();
+  }
+
+  private moveObjectToZIndex(obj: fabric.FabricObject, zIndex: number): void {
+    const targetIndex = Math.max(0, Math.floor(zIndex));
+    const canvasWithMove = this.canvas as unknown as {
+      moveObjectTo?: (object: fabric.FabricObject, index: number) => unknown;
+    };
+    canvasWithMove.moveObjectTo?.(obj, targetIndex);
   }
 
   private applyObjectInteractivity(obj: fabric.FabricObject, canEdit: boolean): void {

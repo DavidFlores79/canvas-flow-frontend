@@ -13,6 +13,8 @@ export class EditorStore {
   readonly workspaceRole = signal<WorkspaceRole | null>(null);
   readonly activeTool = signal<ToolType>('select');
   readonly isLoading = signal(false);
+  readonly viewportWidth = signal(0);
+  readonly viewportHeight = signal(0);
 
   readonly canEdit = computed(() => {
     const role = this.workspaceRole();
@@ -41,6 +43,11 @@ export class EditorStore {
     this.workspaceRole.set(role);
   }
 
+  setViewportSize(width: number, height: number): void {
+    this.viewportWidth.set(width);
+    this.viewportHeight.set(height);
+  }
+
   setActiveTool(tool: ToolType): void {
     this.activeTool.set(tool);
   }
@@ -52,6 +59,26 @@ export class EditorStore {
   addLayer(layer: Layer): void {
     const next = [...this.layers(), layer];
     this.commitHistory(next);
+  }
+
+  updateProjectSize(width: number, height: number): void {
+    const project = this.activeProject();
+    if (!project) return;
+    this.activeProject.set({
+      ...project,
+      width,
+      height,
+    });
+  }
+
+  fitProjectToViewport(): void {
+    const project = this.activeProject();
+    if (!project) return;
+
+    // Keep a small margin so the canvas does not touch container edges.
+    const fittedWidth = Math.max(320, Math.floor(this.viewportWidth() - 24));
+    const fittedHeight = Math.max(240, Math.floor(this.viewportHeight() - 24));
+    this.updateProjectSize(fittedWidth, fittedHeight);
   }
 
   updateLayer(id: string, partial: Partial<Layer>): void {
