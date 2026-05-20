@@ -66,7 +66,6 @@
     class="flex-shrink-0"
     (exportRequested)="canvasRef.exportAs($event)"
     (canvasBackgroundChanged)="setCanvasBackground($event)"
-    (aiGenerateClicked)="openAiModal()"
   />
 
   @if (isLoading()) {
@@ -97,6 +96,7 @@
         @switch (activeTab()) {
           @case ('layers') { <app-layers-panel /> }
           @case ('assets') { <app-assets-panel /> }
+          @case ('ai') { <app-ai-panel /> }
         }
       </aside>
 
@@ -157,7 +157,3 @@
     </div>
   }
 </div>
-
-@if (showAiModal()) {
-  <app-ai-modal (closed)="closeAiModal()" />
-}
