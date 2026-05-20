@@ -30,10 +30,12 @@
   <div class="w-px h-5 bg-gray-200 mx-2"></div>
 
   <button
-    class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-40"
+    class="px-3 py-1 text-sm rounded-md hover:bg-blue-700 disabled:opacity-40 text-white transition-colors"
+    [class.bg-blue-600]="!editorStore.isDirty()"
+    [class.bg-orange-500]="editorStore.isDirty()"
     [disabled]="!editorStore.canEdit() || editorStore.isSaving()"
     (click)="save()"
-  >{{ editorStore.isSaving() ? 'Saving...' : 'Save' }}</button>
+  >{{ editorStore.isSaving() ? 'Saving...' : (editorStore.isDirty() ? 'Save*' : 'Save') }}</button>
 
   <div class="relative">
     <button

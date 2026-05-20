@@ -54,12 +54,67 @@ export class AiPanelComponent {
 
   addToCanvas(asset: Asset): void {
     if (!this.editorStore.canEdit()) return;
-    const layer: Layer = {
-      id: crypto.randomUUID(),
-      type: 'image',
-      assetId: asset.id,
-      properties: { x: 100, y: 100, width: 300, height: 300, rotation: 0, zIndex: 0 },
+    const project = this.editorStore.activeProject();
+    if (!project) return;
+    const imageUrl = asset.url ?? '';
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const MAX = 400;
+      const ratio = img.naturalWidth / img.naturalHeight;
+      let width: number;
+      let height: number;
+      if (img.naturalWidth >= img.naturalHeight) {
+        width = Math.min(img.naturalWidth, MAX);
+        height = width / ratio;
+      } else {
+        height = Math.min(img.naturalHeight, MAX);
+        width = height * ratio;
+      }
+      const nextZIndex = this.editorStore
+        .layers()
+        .reduce((max, layer) => Math.max(max, layer.properties.zIndex), -1) + 1;
+      const layer: Layer = {
+        id: crypto.randomUUID(),
+        type: 'image',
+        assetId: asset.id,
+        content: imageUrl,
+        properties: {
+          x: project.width / 2 - width / 2,
+          y: project.height / 2 - height / 2,
+          width,
+          height,
+          rotation: 0,
+          zIndex: nextZIndex,
+        },
+      };
+      this.editorStore.addLayer(layer);
+      this.editorStore.setActiveTool('select');
+      this.editorStore.selectLayers([layer.id]);
     };
-    this.editorStore.addLayer(layer);
+    img.onerror = () => {
+      const nextZIndex = this.editorStore
+        .layers()
+        .reduce((max, layer) => Math.max(max, layer.properties.zIndex), -1) + 1;
+      const layer: Layer = {
+        id: crypto.randomUUID(),
+        type: 'image',
+        assetId: asset.id,
+        content: imageUrl,
+        properties: {
+          x: project.width / 2 - 150,
+          y: project.height / 2 - 150,
+          width: 300,
+          height: 300,
+          rotation: 0,
+          zIndex: nextZIndex,
+        },
+      };
+      this.editorStore.addLayer(layer);
+      this.editorStore.setActiveTool('select');
+      this.editorStore.selectLayers([layer.id]);
+    };
+    img.src = imageUrl;
   }
 }
