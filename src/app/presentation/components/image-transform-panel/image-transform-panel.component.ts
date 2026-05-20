@@ -150,15 +150,36 @@ export class ImageTransformPanelComponent {
     }
   }
 
-  downloadImage(): void {
+  async downloadImage(): Promise<void> {
     const url = this.transformedUrl() ?? this.layer()?.content;
     if (!url) return;
-    const ext = url.split('?')[0].split('.').pop() ?? 'jpg';
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `image.${ext}`;
-    a.target = '_blank';
-    a.click();
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch image');
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = this.getDownloadFilename(url);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      this.errorMsg.set('Could not download this image.');
+      setTimeout(() => this.errorMsg.set(''), 3000);
+    }
+  }
+
+  private getDownloadFilename(url: string): string {
+    const cleanUrl = url.split('?')[0];
+    const lastSegment = cleanUrl.split('/').pop() || 'image.jpg';
+    const hasExtension = /\.[a-zA-Z0-9]+$/.test(lastSegment);
+    return hasExtension ? lastSegment : `${lastSegment}.jpg`;
   }
 
   onRangeInput(setter: (v: number) => void, event: Event): void {

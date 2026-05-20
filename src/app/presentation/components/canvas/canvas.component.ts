@@ -68,6 +68,13 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       });
       this.canvas.requestRenderAll();
     });
+
+    effect(() => {
+      const background = this.editorStore.canvasBackground();
+      if (!this.canvas) return;
+      this.canvas.backgroundColor = background || ''; // Ensure no null values
+      this.canvas.requestRenderAll();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -76,6 +83,8 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       height: this.height,
       selection: this.editorStore.canEdit(),
     });
+
+    this.canvas.backgroundColor = this.editorStore.canvasBackground() || ''; // Ensure no null values
 
     const syncSelection = () => {
       if (this._isRendering) return;
@@ -195,10 +204,11 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   renderLayers(layers: Layer[]): void {
     if (!this.canvas) return;
-const selectedIds = this.editorStore.selectedLayerIds();
+    const selectedIds = this.editorStore.selectedLayerIds();
     const canEdit = this.editorStore.canEdit();
     this._isRendering = true;
     this.canvas.clear();
+    this.canvas.backgroundColor = this.editorStore.canvasBackground() || ''; // Ensure no null values
     try {
       const orderedLayers = [...layers].sort((a, b) => a.properties.zIndex - b.properties.zIndex);
       for (const layer of orderedLayers) {
@@ -480,9 +490,28 @@ const selectedIds = this.editorStore.selectedLayerIds();
       return;
     }
 
+    const originalBackground = this.canvas.backgroundColor;
+    if (format === 'jpeg') {
+      this.canvas.backgroundColor = this.editorStore.canvasBackground() ?? '#ffffff';
+      this.canvas.requestRenderAll();
+    }
+
     const dataUrl = crop
-      ? this.canvas.toDataURL({ format, quality: 1, multiplier: 1, left: crop.left, top: crop.top, width: crop.width, height: crop.height })
+      ? this.canvas.toDataURL({
+          format,
+          quality: 1,
+          multiplier: 1,
+          left: crop.left,
+          top: crop.top,
+          width: crop.width,
+          height: crop.height,
+        })
       : this.canvas.toDataURL({ format, quality: 1, multiplier: 1 });
+
+    if (format === 'jpeg') {
+      this.canvas.backgroundColor = originalBackground;
+      this.canvas.requestRenderAll();
+    }
     this.triggerDownload(dataUrl, `${filename}.${format}`);
   }
 

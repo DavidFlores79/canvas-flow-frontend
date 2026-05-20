@@ -207,6 +207,10 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.zoom.set(Math.min(scaleX, scaleY, 3));
   }
 
+  setCanvasBackground(background: string | null): void {
+    this.editorStore.setCanvasBackground(background);
+  }
+
   @HostListener('wheel', ['$event'])
   onWheel(e: WheelEvent): void {
     if (!e.ctrlKey && !e.metaKey) return;

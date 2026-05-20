@@ -64,6 +64,29 @@
 
   <div class="w-px h-5 bg-gray-200 mx-2"></div>
 
+  <label class="flex items-center gap-2 text-xs text-gray-600">
+    <span>Canvas</span>
+    <input
+      type="color"
+      class="w-8 h-6 p-0 border border-gray-200 rounded cursor-pointer bg-white"
+      [value]="editorStore.canvasBackground() ?? '#ffffff'"
+      (input)="onCanvasBackgroundChange($event)"
+      title="Canvas background"
+    />
+    <button
+      class="px-2 py-1 rounded border text-[11px]"
+      [class.border-blue-300]="editorStore.canvasBackground() === null"
+      [class.text-blue-700]="editorStore.canvasBackground() === null"
+      [class.bg-blue-50]="editorStore.canvasBackground() === null"
+      [class.border-gray-200]="editorStore.canvasBackground() !== null"
+      [class.text-gray-600]="editorStore.canvasBackground() !== null"
+      (click)="setTransparentBackground()"
+      title="Set transparent canvas"
+    >Transparent</button>
+  </label>
+
+  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+
   <button
     class="px-3 py-1 text-sm rounded-md hover:bg-blue-700 disabled:opacity-40 text-white transition-colors"
     [class.bg-blue-600]="!editorStore.isDirty()"

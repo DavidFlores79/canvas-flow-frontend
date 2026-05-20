@@ -23,6 +23,7 @@ export class ToolbarComponent {
   protected readonly editorStore = inject(EditorStore);
 
   @Output() readonly exportRequested = new EventEmitter<ExportFormat>();
+  @Output() readonly canvasBackgroundChanged = new EventEmitter<string | null>();
 
   protected readonly tools: Tool[] = [
     { key: 'select', label: 'Select' },
@@ -73,5 +74,14 @@ export class ToolbarComponent {
   export(format: ExportFormat): void {
     this.showExportMenu = false;
     this.exportRequested.emit(format);
+  }
+
+  onCanvasBackgroundChange(event: Event): void {
+    const color = (event.target as HTMLInputElement).value;
+    this.canvasBackgroundChanged.emit(color);
+  }
+
+  setTransparentBackground(): void {
+    this.canvasBackgroundChanged.emit(null);
   }
 }

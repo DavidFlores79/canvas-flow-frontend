@@ -62,7 +62,11 @@
   </header>
 
   <!-- Toolbar -->
-  <app-toolbar class="flex-shrink-0" (exportRequested)="canvasRef.exportAs($event)" />
+  <app-toolbar
+    class="flex-shrink-0"
+    (exportRequested)="canvasRef.exportAs($event)"
+    (canvasBackgroundChanged)="setCanvasBackground($event)"
+  />
 
   @if (isLoading()) {
     <div class="flex-1 flex items-center justify-center">

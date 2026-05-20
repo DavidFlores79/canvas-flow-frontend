@@ -26,6 +26,7 @@ export class EditorStore {
   readonly isSaving = signal(false);
   readonly viewportWidth = signal(0);
   readonly viewportHeight = signal(0);
+  readonly canvasBackground = signal<string | null>(null);
 
   readonly canEdit = computed(() => {
     const role = this.workspaceRole();
@@ -103,6 +104,10 @@ export class EditorStore {
   setViewportSize(width: number, height: number): void {
     this.viewportWidth.set(width);
     this.viewportHeight.set(height);
+  }
+
+  setCanvasBackground(color: string | null): void {
+    this.canvasBackground.set(color);
   }
 
   setActiveTool(tool: ToolType): void {
