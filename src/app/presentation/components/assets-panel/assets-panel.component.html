@@ -25,13 +25,34 @@
 
   <div class="grid grid-cols-2 gap-2">
     @for (asset of assets(); track asset.id) {
-      <button
-        class="aspect-square rounded overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors"
-        [disabled]="!editorStore.canEdit()"
-        (click)="addToCanvas(asset)"
-      >
-        <img [src]="asset.url" [alt]="asset.id" class="w-full h-full object-cover" />
-      </button>
+      <div class="relative group aspect-square rounded overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors">
+        <button
+          class="w-full h-full"
+          [disabled]="!editorStore.canEdit()"
+          (click)="addToCanvas(asset)"
+        >
+          <img [src]="asset.url" [alt]="asset.id" class="w-full h-full object-cover" />
+        </button>
+        @if (editorStore.canEdit()) {
+          <button
+            class="absolute top-1 right-1 hidden group-hover:flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
+            [disabled]="deletingId() === asset.id"
+            (click)="deleteAsset(asset, $event)"
+            title="Delete asset"
+          >
+            @if (deletingId() === asset.id) {
+              <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            }
+          </button>
+        }
+      </div>
     }
   </div>
 </div>

@@ -16,6 +16,7 @@ export class AssetsPanelComponent implements OnInit {
 
   protected readonly assets = signal<Asset[]>([]);
   protected readonly isLoading = signal(false);
+  protected readonly deletingId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
@@ -101,6 +102,25 @@ export class AssetsPanelComponent implements OnInit {
       this.editorStore.selectLayers([layer.id]);
     };
     img.src = imageUrl;
+  }
+
+  async deleteAsset(asset: Asset, event: MouseEvent): Promise<void> {
+    event.stopPropagation();
+    const id = (asset as Asset & { _id?: string }).id ?? (asset as Asset & { _id?: string })._id ?? '';
+    if (!id) return;
+    this.deletingId.set(id);
+    this.error.set(null);
+    try {
+      await firstValueFrom(this.assetApi.delete(id));
+      this.assets.update(prev => prev.filter(a => {
+        const aId = (a as Asset & { _id?: string }).id ?? (a as Asset & { _id?: string })._id ?? '';
+        return aId !== id;
+      }));
+    } catch {
+      this.error.set('Failed to delete asset');
+    } finally {
+      this.deletingId.set(null);
+    }
   }
 
   async uploadFile(event: Event): Promise<void> {

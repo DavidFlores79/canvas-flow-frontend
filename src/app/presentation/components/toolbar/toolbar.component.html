@@ -48,7 +48,22 @@
     }
   </div>
 
+  <button
+    class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 text-sm rounded-md hover:from-purple-700 hover:to-indigo-700 shadow-sm transition-all disabled:opacity-40 flex items-center gap-1.5"
+    [disabled]="!editorStore.canEdit()"
+    (click)="aiGenerateClicked.emit()"
+  ><span>✦</span><span>AI</span></button>
+
   <div class="w-px h-5 bg-gray-200 mx-2"></div>
+
+  @if (hasSelection()) {
+    <button
+      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+      [disabled]="!editorStore.canEdit()"
+      (click)="duplicate()"
+      title="Duplicate selected layer"
+    >Duplicate</button>
+  }
 
   <button
     class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"

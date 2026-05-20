@@ -203,6 +203,24 @@ export class EditorStore {
     this.commitHistory(next);
   }
 
+  duplicateLayer(id: string): void {
+    const original = this.layers().find(l => l.id === id);
+    if (!original) return;
+    const maxZ = Math.max(0, ...this.layers().map(l => l.properties.zIndex));
+    const clone: Layer = {
+      ...original,
+      id: crypto.randomUUID(),
+      properties: {
+        ...original.properties,
+        x: original.properties.x + 10,
+        y: original.properties.y + 10,
+        zIndex: maxZ + 1,
+      },
+    };
+    this.commitHistory([...this.layers(), clone]);
+    this.selectedLayerIds.set([clone.id]);
+  }
+
   removeLayer(id: string): void {
     const next = this.layers().filter(l => l.id !== id);
     this.commitHistory(next);

@@ -66,6 +66,7 @@
     class="flex-shrink-0"
     (exportRequested)="canvasRef.exportAs($event)"
     (canvasBackgroundChanged)="setCanvasBackground($event)"
+    (aiGenerateClicked)="openAiModal()"
   />
 
   @if (isLoading()) {
@@ -96,23 +97,31 @@
         @switch (activeTab()) {
           @case ('layers') { <app-layers-panel /> }
           @case ('assets') { <app-assets-panel /> }
-          @case ('ai') { <app-ai-panel /> }
         }
       </aside>
 
       <!-- Canvas column: scrollable viewport + fixed zoom bar -->
       <div class="flex-1 flex flex-col overflow-hidden">
-        <main #canvasViewport class="flex-1 overflow-auto flex items-start justify-center p-8">
+        <main #canvasViewport class="flex-1 overflow-auto p-8">
+          <!-- Outer div has the scaled layout size so scroll container knows the true footprint -->
           <div
-            class="origin-top"
-            [style.transform]="'scale(' + zoom() + ')'"
-            [style.margin-bottom.px]="(editorStore.activeProject()?.height ?? 800) * (zoom() - 1)"
+            class="relative mx-auto"
+            [style.width.px]="(editorStore.activeProject()?.width ?? 1200) * zoom()"
+            [style.height.px]="(editorStore.activeProject()?.height ?? 800) * zoom()"
           >
-            <app-canvas
-              #canvasRef
-              [width]="editorStore.activeProject()?.width ?? 1200"
-              [height]="editorStore.activeProject()?.height ?? 800"
-            />
+            <!-- Inner div is native canvas size, scaled from top-left to fill the outer div -->
+            <div
+              class="absolute top-0 left-0 origin-top-left"
+              [style.transform]="'scale(' + zoom() + ')'"
+              [style.width.px]="editorStore.activeProject()?.width ?? 1200"
+              [style.height.px]="editorStore.activeProject()?.height ?? 800"
+            >
+              <app-canvas
+                #canvasRef
+                [width]="editorStore.activeProject()?.width ?? 1200"
+                [height]="editorStore.activeProject()?.height ?? 800"
+              />
+            </div>
           </div>
         </main>
 
@@ -157,3 +166,7 @@
     </div>
   }
 </div>
+
+@if (showAiModal()) {
+  <app-ai-modal (closed)="closeAiModal()" />
+}

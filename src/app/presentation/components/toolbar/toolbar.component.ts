@@ -24,6 +24,7 @@ export class ToolbarComponent {
 
   @Output() readonly exportRequested = new EventEmitter<ExportFormat>();
   @Output() readonly canvasBackgroundChanged = new EventEmitter<string | null>();
+  @Output() readonly aiGenerateClicked = new EventEmitter<void>();
 
   protected readonly tools: Tool[] = [
     { key: 'select', label: 'Select' },
@@ -57,6 +58,13 @@ export class ToolbarComponent {
     this.editorStore.setActiveShapeKind(kind);
     this.editorStore.setActiveTool('shape');
     this.showShapeMenu = false;
+  }
+
+  duplicate(): void {
+    const ids = this.editorStore.selectedLayerIds();
+    if (ids.length === 1) {
+      this.editorStore.duplicateLayer(ids[0]);
+    }
   }
 
   undo(): void {

@@ -5,7 +5,7 @@ import { AssetApiService } from '../../../data/services/asset-api.service';
 import { TransformPayload } from '../../../domain/models/asset.model';
 import { LayerTransforms } from '../../../domain/models/layer.model';
 
-type FormatOption = 'original' | 'jpg' | 'png' | 'webp' | 'avif';
+type FormatOption = 'original' | 'jpg' | 'png' | 'webp' | 'avif' | 'gif' | 'tiff';
 
 interface ImageMeta {
   naturalWidth: number;

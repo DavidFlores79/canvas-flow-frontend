@@ -26,4 +26,8 @@ export class AssetApiService {
   transform(id: string, payload: TransformPayload): Observable<Asset> {
     return this.http.post<Asset>(`${this.baseUrl}/assets/${id}/transform`, payload);
   }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/assets/${id}`);
+  }
 }
