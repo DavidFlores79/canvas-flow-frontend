@@ -60,6 +60,13 @@ export class ToolbarComponent {
     this.showShapeMenu = false;
   }
 
+  duplicate(): void {
+    const ids = this.editorStore.selectedLayerIds();
+    if (ids.length === 1) {
+      this.editorStore.duplicateLayer(ids[0]);
+    }
+  }
+
   undo(): void {
     this.editorStore.undo();
   }

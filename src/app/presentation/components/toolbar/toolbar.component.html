@@ -56,6 +56,15 @@
 
   <div class="w-px h-5 bg-gray-200 mx-2"></div>
 
+  @if (hasSelection()) {
+    <button
+      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+      [disabled]="!editorStore.canEdit()"
+      (click)="duplicate()"
+      title="Duplicate selected layer"
+    >Duplicate</button>
+  }
+
   <button
     class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
     [disabled]="!editorStore.canEdit()"

@@ -180,6 +180,17 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
     });
 
     this._keydownHandler = (e: KeyboardEvent) => {
+      const ctrl = e.ctrlKey || e.metaKey;
+
+      if (ctrl && e.key === 'd') {
+        const ids = this.editorStore.selectedLayerIds();
+        if (ids.length === 1 && this.editorStore.canEdit()) {
+          e.preventDefault();
+          this.editorStore.duplicateLayer(ids[0]);
+        }
+        return;
+      }
+
       if (e.key !== 'Delete' && e.key !== 'Backspace') return;
       const active = this.canvas.getActiveObject();
       if (!active || !this.editorStore.canEdit()) return;
