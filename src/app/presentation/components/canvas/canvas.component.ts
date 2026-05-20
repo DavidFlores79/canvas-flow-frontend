@@ -339,7 +339,8 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       height = obj.getScaledHeight();
     }
 
-    const existingProps = this.editorStore.layers().find(l => l.id === layerId)?.properties ?? {};
+    const existingLayer = this.editorStore.layers().find(l => l.id === layerId);
+    const existingProps = existingLayer?.properties ?? {};
     const textProps = (obj instanceof fabric.Textbox || obj instanceof fabric.IText)
       ? {
           fontFamily: (obj as fabric.Textbox).fontFamily ?? 'Arial',
@@ -369,7 +370,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
         width,
         height,
         rotation: obj.angle ?? 0,
-        zIndex: this.canvas.getObjects().indexOf(obj),
+        zIndex: existingLayer?.properties.zIndex ?? this.canvas.getObjects().indexOf(obj),
         ...textProps,
         ...shapeProps,
       },
