@@ -13,8 +13,8 @@ import {
   untracked,
 } from '@angular/core';
 import * as fabric from 'fabric';
-import { EditorStore } from '../../../application/stores/editor.store';
-import { Layer } from '../../../domain/models/layer.model';
+import { EditorStore, ShapeKind } from '../../../application/stores/editor.store';
+import { Layer, LayerProperties } from '../../../domain/models/layer.model';
 
 @Component({
   selector: 'app-canvas',
@@ -136,16 +136,19 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
           },
         };
       } else {
+        const kind = this.editorStore.activeShapeKind();
+        const isLine = kind === 'line' || kind === 'dashed-line';
         layer = {
           id: crypto.randomUUID(),
           type: 'shape',
           properties: {
             x: point.x,
             y: point.y,
-            width: 150,
-            height: 150,
+            width: isLine ? 150 : 150,
+            height: isLine ? 0 : 150,
             rotation: 0,
             zIndex: nextZIndex,
+            shapeKind: kind,
           },
         };
       }
@@ -243,6 +246,13 @@ const selectedIds = this.editorStore.selectedLayerIds();
           angle: layer.properties.rotation,
           editable: canEdit,
           lockScalingY: true,
+          fontFamily: layer.properties.fontFamily ?? 'Arial',
+          fontSize: layer.properties.fontSize ?? 24,
+          fontWeight: layer.properties.fontWeight ?? 'normal',
+          fontStyle: layer.properties.fontStyle ?? 'normal',
+          underline: layer.properties.underline ?? false,
+          fill: layer.properties.textColor ?? '#000000',
+          textAlign: layer.properties.textAlign ?? 'left',
         });
         this.applyObjectInteractivity(text, canEdit);
         text.set({ lockScalingY: true });
@@ -250,20 +260,11 @@ const selectedIds = this.editorStore.selectedLayerIds();
         this.canvas.add(text);
         this.moveObjectToZIndex(text, layer.properties.zIndex);
       } else {
-        const rect = new fabric.Rect({
-          left: layer.properties.x,
-          top: layer.properties.y,
-          width: layer.properties.width,
-          height: layer.properties.height,
-          angle: layer.properties.rotation,
-          fill: '#dbeafe',
-          stroke: '#60a5fa',
-          strokeWidth: 1,
-        });
-        this.applyObjectInteractivity(rect, canEdit);
-        (rect as fabric.Rect & { layerId: string }).layerId = layer.id;
-        this.canvas.add(rect);
-        this.moveObjectToZIndex(rect, layer.properties.zIndex);
+        const shapeObj = this.createShapeObject(layer.properties);
+        this.applyObjectInteractivity(shapeObj, canEdit);
+        (shapeObj as fabric.FabricObject & { layerId: string }).layerId = layer.id;
+        this.canvas.add(shapeObj);
+        this.moveObjectToZIndex(shapeObj, layer.properties.zIndex);
       }
     }
     // Restore selection after re-render
@@ -329,6 +330,27 @@ const selectedIds = this.editorStore.selectedLayerIds();
     }
 
     const existingProps = this.editorStore.layers().find(l => l.id === layerId)?.properties ?? {};
+    const textProps = (obj instanceof fabric.Textbox || obj instanceof fabric.IText)
+      ? {
+          fontFamily: (obj as fabric.Textbox).fontFamily ?? 'Arial',
+          fontSize: (obj as fabric.Textbox).fontSize ?? 24,
+          fontWeight: ((obj as fabric.Textbox).fontWeight as 'normal' | 'bold') ?? 'normal',
+          fontStyle: ((obj as fabric.Textbox).fontStyle as 'normal' | 'italic') ?? 'normal',
+          underline: (obj as fabric.Textbox).underline ?? false,
+          textColor: (obj as fabric.Textbox).fill as string ?? '#000000',
+          textAlign: ((obj as fabric.Textbox).textAlign as 'left' | 'center' | 'right') ?? 'left',
+        }
+      : {};
+    const isShapeObj = obj instanceof fabric.Rect || obj instanceof fabric.Ellipse ||
+      obj instanceof fabric.Triangle || obj instanceof fabric.Polygon ||
+      obj instanceof fabric.Polyline || obj instanceof fabric.Path;
+    const shapeProps = isShapeObj
+      ? {
+          fillColor: obj.fill as string ?? '#dbeafe',
+          strokeColor: obj.stroke as string ?? '#60a5fa',
+          strokeWidth: obj.strokeWidth ?? 1,
+        }
+      : {};
     const patch = {
       properties: {
         ...existingProps,
@@ -338,6 +360,8 @@ const selectedIds = this.editorStore.selectedLayerIds();
         height,
         rotation: obj.angle ?? 0,
         zIndex: this.canvas.getObjects().indexOf(obj),
+        ...textProps,
+        ...shapeProps,
       },
       ...(includeContent && (obj instanceof fabric.Textbox || obj instanceof fabric.IText)
         ? { content: obj.text ?? '' }
@@ -345,6 +369,52 @@ const selectedIds = this.editorStore.selectedLayerIds();
     } as Partial<Layer>;
 
     this.editorStore.updateLayer(layerId, patch);
+  }
+
+  private createShapeObject(props: LayerProperties): fabric.FabricObject {
+    const fill = props.fillColor ?? '#dbeafe';
+    const stroke = props.strokeColor ?? '#60a5fa';
+    const strokeWidth = props.strokeWidth ?? 1;
+    const { x, y, width, height, rotation: angle } = props;
+    const kind: ShapeKind = props.shapeKind ?? 'rect';
+
+    switch (kind) {
+      case 'ellipse':
+        return new fabric.Ellipse({ left: x, top: y, rx: width / 2, ry: height / 2, angle, fill, stroke, strokeWidth });
+
+      case 'triangle':
+        return new fabric.Triangle({ left: x, top: y, width, height, angle, fill, stroke, strokeWidth });
+
+      case 'line':
+        return new fabric.Polyline([{ x: 0, y: 0 }, { x: width, y: 0 }], { left: x, top: y, angle, stroke, strokeWidth, fill: '' });
+
+      case 'dashed-line':
+        return new fabric.Polyline([{ x: 0, y: 0 }, { x: width, y: 0 }], { left: x, top: y, angle, stroke, strokeWidth, strokeDashArray: [8, 6], fill: '' });
+
+      case 'star': {
+        const cx = width / 2, cy = height / 2;
+        const outerR = Math.min(width, height) / 2;
+        const innerR = outerR * 0.45;
+        const points: { x: number; y: number }[] = [];
+        for (let i = 0; i < 10; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const a = (Math.PI / 5) * i - Math.PI / 2;
+          points.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+        }
+        return new fabric.Polygon(points, { left: x, top: y, angle, fill, stroke, strokeWidth });
+      }
+
+      case 'arrow': {
+        const hw = height / 2;
+        const headW = Math.min(hw, 20);
+        const shaft = width - headW;
+        const path = `M 0 ${hw} L ${shaft} ${hw} L ${shaft} ${hw - headW * 0.6} L ${width} ${hw} L ${shaft} ${hw + headW * 0.6} L ${shaft} ${hw} Z`;
+        return new fabric.Path(path, { left: x, top: y, angle, fill, stroke, strokeWidth });
+      }
+
+      default:
+        return new fabric.Rect({ left: x, top: y, width, height, angle, fill, stroke, strokeWidth });
+    }
   }
 
   private addImageFallback(layer: Layer, shouldActivate: boolean): void {

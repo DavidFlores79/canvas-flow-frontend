@@ -1,16 +1,28 @@
 <div class="p-4">
   <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Layers</h3>
-  @if (editorStore.layers().length === 0) {
+  @if (sortedLayers().length === 0) {
     <p class="text-xs text-gray-400">No layers yet</p>
   } @else {
     <ul class="space-y-1">
-      @for (layer of editorStore.layers(); track layer.id) {
+      @for (layer of sortedLayers(); track layer.id; let i = $index) {
         <li
-          class="flex items-center justify-between px-2 py-1 rounded cursor-pointer text-sm"
+          draggable="true"
+          class="flex items-center justify-between px-2 py-1 rounded cursor-pointer text-sm transition-colors"
           [class.bg-blue-50]="editorStore.selectedLayerIds().includes(layer.id)"
+          [class.border-t-2]="dragOverIndex() === i"
+          [class.border-blue-400]="dragOverIndex() === i"
+          [class.opacity-40]="dragOverIndex() !== null && dragOverIndex() !== i"
           (click)="selectLayer(layer.id)"
+          (dragstart)="onDragStart($event, i)"
+          (dragover)="onDragOver($event, i)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event, i)"
+          (dragend)="onDragEnd()"
         >
-          <span class="text-gray-700">{{ layer.type }} — {{ layer.id | slice:0:8 }}</span>
+          @if (editorStore.canEdit()) {
+            <span class="text-gray-300 mr-1 cursor-grab select-none">⠿</span>
+          }
+          <span class="text-gray-700 flex-1 truncate">{{ layer.type }} — {{ layer.id | slice:0:8 }}</span>
           @if (editorStore.canEdit()) {
             <button
               class="text-gray-400 hover:text-red-500 text-xs ml-2"

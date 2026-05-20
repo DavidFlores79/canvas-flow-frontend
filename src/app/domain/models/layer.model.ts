@@ -17,6 +17,17 @@ export interface LayerProperties {
   readonly rotation: number;
   readonly zIndex: number;
   readonly transforms?: LayerTransforms;
+  readonly fontFamily?: string;
+  readonly fontSize?: number;
+  readonly fontWeight?: 'normal' | 'bold';
+  readonly fontStyle?: 'normal' | 'italic';
+  readonly underline?: boolean;
+  readonly textColor?: string;
+  readonly textAlign?: 'left' | 'center' | 'right';
+  readonly fillColor?: string;
+  readonly strokeColor?: string;
+  readonly strokeWidth?: number;
+  readonly shapeKind?: 'rect' | 'ellipse' | 'triangle' | 'line' | 'dashed-line' | 'star' | 'arrow';
 }
 
 export interface Layer {

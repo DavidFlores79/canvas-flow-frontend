@@ -81,6 +81,131 @@
       </div>
     </div>
 
+    @if (layer.type === 'text') {
+      <div class="mt-3 border-t border-gray-100 pt-3 space-y-3">
+        <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Text Style</p>
+
+        <label class="block text-xs text-gray-500">
+          Font
+          <select
+            class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm bg-white"
+            [value]="layer.properties.fontFamily ?? 'Arial'"
+            (change)="onFontFamilyChange($event, layer.id)"
+          >
+            @for (font of FONT_FAMILIES; track font) {
+              <option [value]="font">{{ font }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="block text-xs text-gray-500">
+          Size
+          <input
+            type="number"
+            min="6"
+            max="400"
+            class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+            [value]="layer.properties.fontSize ?? 24"
+            (change)="onFontSizeChange($event, layer.id)"
+          />
+        </label>
+
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Style</p>
+          <div class="flex gap-1">
+            <button
+              class="flex-1 py-1 rounded text-sm font-bold border"
+              [class]="(layer.properties.fontWeight ?? 'normal') === 'bold' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+              (click)="onFontWeightToggle(layer.id, layer.properties.fontWeight ?? 'normal')"
+              title="Bold"
+            >B</button>
+            <button
+              class="flex-1 py-1 rounded text-sm italic border"
+              [class]="(layer.properties.fontStyle ?? 'normal') === 'italic' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+              (click)="onFontStyleToggle(layer.id, layer.properties.fontStyle ?? 'normal')"
+              title="Italic"
+            >I</button>
+            <button
+              class="flex-1 py-1 rounded text-sm underline border"
+              [class]="(layer.properties.underline ?? false) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+              (click)="onUnderlineToggle(layer.id, layer.properties.underline ?? false)"
+              title="Underline"
+            >U</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Align</p>
+          <div class="flex gap-1">
+            @for (align of TEXT_ALIGNS; track align) {
+              <button
+                class="flex-1 py-1 rounded text-xs border"
+                [class]="(layer.properties.textAlign ?? 'left') === align ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+                (click)="onTextAlignChange(align, layer.id)"
+              >{{ align }}</button>
+            }
+          </div>
+        </div>
+
+        <label class="block text-xs text-gray-500">
+          Color
+          <div class="mt-1 flex items-center gap-2">
+            <input
+              type="color"
+              class="h-7 w-10 rounded border border-gray-200 cursor-pointer p-0.5"
+              [value]="layer.properties.textColor ?? '#000000'"
+              (input)="onTextColorChange($event, layer.id)"
+            />
+            <span class="text-xs text-gray-400">{{ layer.properties.textColor ?? '#000000' }}</span>
+          </div>
+        </label>
+      </div>
+    }
+
+    @if (layer.type === 'shape') {
+      <div class="mt-3 border-t border-gray-100 pt-3 space-y-3">
+        <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Shape Style</p>
+
+        <label class="block text-xs text-gray-500">
+          Fill
+          <div class="mt-1 flex items-center gap-2">
+            <input
+              type="color"
+              class="h-7 w-10 rounded border border-gray-200 cursor-pointer p-0.5"
+              [value]="layer.properties.fillColor ?? '#dbeafe'"
+              (input)="onFillColorChange($event, layer.id)"
+            />
+            <span class="text-xs text-gray-400">{{ layer.properties.fillColor ?? '#dbeafe' }}</span>
+          </div>
+        </label>
+
+        <label class="block text-xs text-gray-500">
+          Stroke
+          <div class="mt-1 flex items-center gap-2">
+            <input
+              type="color"
+              class="h-7 w-10 rounded border border-gray-200 cursor-pointer p-0.5"
+              [value]="layer.properties.strokeColor ?? '#60a5fa'"
+              (input)="onStrokeColorChange($event, layer.id)"
+            />
+            <span class="text-xs text-gray-400">{{ layer.properties.strokeColor ?? '#60a5fa' }}</span>
+          </div>
+        </label>
+
+        <label class="block text-xs text-gray-500">
+          Stroke width
+          <input
+            type="number"
+            min="0"
+            max="50"
+            class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+            [value]="layer.properties.strokeWidth ?? 1"
+            (change)="onStrokeWidthChange($event, layer.id)"
+          />
+        </label>
+      </div>
+    }
+
     @if (layer.type === 'image') {
       <app-image-transform-panel />
     }

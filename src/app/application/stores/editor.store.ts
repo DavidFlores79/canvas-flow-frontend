@@ -10,6 +10,7 @@ function layersKey(layers: Layer[]): string {
 }
 
 export type ToolType = 'select' | 'text' | 'shape';
+export type ShapeKind = 'rect' | 'ellipse' | 'triangle' | 'line' | 'dashed-line' | 'star' | 'arrow';
 
 @Injectable({ providedIn: 'root' })
 export class EditorStore {
@@ -20,6 +21,7 @@ export class EditorStore {
   readonly selectedLayerIds = signal<string[]>([]);
   readonly workspaceRole = signal<WorkspaceRole | null>(null);
   readonly activeTool = signal<ToolType>('select');
+  readonly activeShapeKind = signal<ShapeKind>('rect');
   readonly isLoading = signal(false);
   readonly isSaving = signal(false);
   readonly viewportWidth = signal(0);
@@ -107,6 +109,10 @@ export class EditorStore {
     this.activeTool.set(tool);
   }
 
+  setActiveShapeKind(kind: ShapeKind): void {
+    this.activeShapeKind.set(kind);
+  }
+
   selectLayers(ids: string[]): void {
     this.selectedLayerIds.set(ids);
   }
@@ -114,6 +120,14 @@ export class EditorStore {
   addLayer(layer: Layer): void {
     const next = [...this.layers(), layer];
     this.commitHistory(next);
+  }
+
+  reorderLayers(fromIndex: number, toIndex: number): void {
+    const ordered = [...this.layers()].sort((a, b) => a.properties.zIndex - b.properties.zIndex);
+    const [moved] = ordered.splice(fromIndex, 1);
+    ordered.splice(toIndex, 0, moved);
+    const reassigned = ordered.map((l, i) => ({ ...l, properties: { ...l.properties, zIndex: i } }));
+    this.commitHistory(reassigned);
   }
 
   updateProjectSize(width: number, height: number): void {
@@ -157,6 +171,30 @@ export class EditorStore {
 
   updateLayer(id: string, partial: Partial<Layer>): void {
     const next = this.layers().map(l => (l.id === id ? { ...l, ...partial } : l));
+    this.commitHistory(next);
+  }
+
+  updateTextStyle(id: string, patch: {
+    fontFamily?: string;
+    fontSize?: number;
+    fontWeight?: 'normal' | 'bold';
+    fontStyle?: 'normal' | 'italic';
+    underline?: boolean;
+    textColor?: string;
+    textAlign?: 'left' | 'center' | 'right';
+  }): void {
+    const next = this.layers().map(l => {
+      if (l.id !== id) return l;
+      return { ...l, properties: { ...l.properties, ...patch } };
+    });
+    this.commitHistory(next);
+  }
+
+  updateShapeStyle(id: string, patch: { fillColor?: string; strokeColor?: string; strokeWidth?: number }): void {
+    const next = this.layers().map(l => {
+      if (l.id !== id) return l;
+      return { ...l, properties: { ...l.properties, ...patch } };
+    });
     this.commitHistory(next);
   }
 

@@ -13,6 +13,41 @@
     </button>
   }
 
+  <div class="relative">
+    <button
+      class="flex items-center gap-1 px-3 py-1 text-sm rounded-md transition-colors"
+      [class.bg-blue-100]="editorStore.activeTool() === 'shape'"
+      [class.text-blue-700]="editorStore.activeTool() === 'shape'"
+      [class.bg-gray-100]="editorStore.activeTool() !== 'shape'"
+      [class.text-gray-700]="editorStore.activeTool() !== 'shape'"
+      [disabled]="!editorStore.canEdit()"
+      (click)="showShapeMenu = !showShapeMenu"
+    >
+      <span>{{ activeShapeOption.icon }}</span>
+      <span>{{ activeShapeOption.label }}</span>
+      <span class="text-xs opacity-60">▾</span>
+    </button>
+
+    @if (showShapeMenu) {
+      <div
+        class="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm min-w-[150px]"
+        (mouseleave)="showShapeMenu = false"
+      >
+        @for (option of shapeOptions; track option.kind) {
+          <button
+            class="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50"
+            [class.text-blue-700]="editorStore.activeShapeKind() === option.kind"
+            [class.font-medium]="editorStore.activeShapeKind() === option.kind"
+            (click)="selectShape(option.kind)"
+          >
+            <span class="w-4 text-center">{{ option.icon }}</span>
+            <span>{{ option.label }}</span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+
   <div class="w-px h-5 bg-gray-200 mx-2"></div>
 
   <button
