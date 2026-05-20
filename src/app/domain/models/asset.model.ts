@@ -13,7 +13,6 @@ export interface TransformPayload {
   removeBackground?: boolean;
   width?: number;
   height?: number;
-  crop?: 'fill' | 'crop' | 'scale' | 'fit' | 'thumb';
   brightness?: number;
   contrast?: number;
   grayscale?: boolean;

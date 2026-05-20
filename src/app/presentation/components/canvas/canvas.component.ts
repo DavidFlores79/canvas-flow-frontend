@@ -45,6 +45,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private canvas!: fabric.Canvas;
   private _isRendering = false;
+  private _keydownHandler!: (e: KeyboardEvent) => void;
   protected readonly editorStore = inject(EditorStore);
   protected readonly contextMenu = signal<{ visible: boolean; x: number; y: number }>({ visible: false, x: 0, y: 0 });
 
@@ -166,16 +167,15 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       }
     });
 
-    this.canvasEl.nativeElement.addEventListener('keydown', (e: KeyboardEvent) => {
+    this._keydownHandler = (e: KeyboardEvent) => {
       if (e.key !== 'Delete' && e.key !== 'Backspace') return;
       const active = this.canvas.getActiveObject();
       if (!active || !this.editorStore.canEdit()) return;
       if (active instanceof fabric.Textbox && active.isEditing) return;
       e.preventDefault();
       this.deleteSelectedLayers();
-    });
-
-    this.canvasEl.nativeElement.setAttribute('tabindex', '0');
+    };
+    document.addEventListener('keydown', this._keydownHandler);
 
     // Initial render of any pre-loaded layers
     this.renderLayers(this.editorStore.layers());
@@ -192,7 +192,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   renderLayers(layers: Layer[]): void {
     if (!this.canvas) return;
-    const selectedIds = this.editorStore.selectedLayerIds();
+const selectedIds = this.editorStore.selectedLayerIds();
     const canEdit = this.editorStore.canEdit();
     this._isRendering = true;
     this.canvas.clear();
@@ -203,16 +203,19 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
         const imageUrl = layer.content;
         if (imageUrl) {
           const imgEl = new Image();
+          imgEl.crossOrigin = 'anonymous';
           imgEl.onload = () => {
             try {
+              const scaleX = layer.properties.width / (imgEl.naturalWidth || layer.properties.width);
+              const scaleY = layer.properties.height / (imgEl.naturalHeight || layer.properties.height);
               const imageObj = new fabric.FabricImage(imgEl, {
                 left: layer.properties.x,
                 top: layer.properties.y,
                 angle: layer.properties.rotation,
+                scaleX,
+                scaleY,
               });
               this.applyObjectInteractivity(imageObj, this.editorStore.canEdit());
-              imageObj.scaleToWidth(layer.properties.width);
-              imageObj.scaleToHeight(layer.properties.height);
               imageObj.setCoords();
               (imageObj as fabric.FabricImage & { layerId: string }).layerId = layer.id;
               this.canvas.add(imageObj);
@@ -284,6 +287,16 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
   protected deleteSelectedLayers(): void {
     this.contextMenu.set({ visible: false, x: 0, y: 0 });
     const ids = this.editorStore.selectedLayerIds();
+    // Remove Fabric.js objects from canvas
+    this.canvas.getObjects().forEach(obj => {
+      const layerId = (obj as fabric.FabricObject & { layerId?: string }).layerId;
+      if (layerId && ids.includes(layerId)) {
+        this.canvas.remove(obj);
+      }
+    });
+    this.canvas.discardActiveObject();
+    this.canvas.requestRenderAll();
+    // Remove from store
     ids.forEach(id => this.editorStore.removeLayer(id));
   }
 
@@ -315,8 +328,10 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       height = obj.getScaledHeight();
     }
 
+    const existingProps = this.editorStore.layers().find(l => l.id === layerId)?.properties ?? {};
     const patch = {
       properties: {
+        ...existingProps,
         x: obj.left ?? 0,
         y: obj.top ?? 0,
         width,
@@ -401,6 +416,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.removeEventListener('keydown', this._keydownHandler);
     this.canvas?.dispose();
   }
 }

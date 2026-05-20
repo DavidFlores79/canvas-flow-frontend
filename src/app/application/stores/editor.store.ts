@@ -5,6 +5,10 @@ import { Project } from '../../domain/models/project.model';
 import { WorkspaceRole } from '../../domain/models/user.model';
 import { LayerApiService } from '../../data/services/layer-api.service';
 
+function layersKey(layers: Layer[]): string {
+  return JSON.stringify(layers.map(l => ({ ...l })));
+}
+
 export type ToolType = 'select' | 'text' | 'shape';
 
 @Injectable({ providedIn: 'root' })
@@ -34,6 +38,9 @@ export class EditorStore {
   private historyStack: Layer[][] = [];
   private historyIndex = -1;
   private savedLayerIds = new Set<string>();
+  private readonly savedSnapshot = signal<string>('[]');
+
+  readonly isDirty = computed(() => layersKey(this.layers()) !== this.savedSnapshot());
 
   setProject(project: Project): void {
     this.activeProject.set(project);
@@ -44,6 +51,7 @@ export class EditorStore {
     this.historyStack = [layers];
     this.historyIndex = 0;
     this.savedLayerIds = new Set(layers.map(l => l.id));
+    this.savedSnapshot.set(layersKey(layers));
   }
 
   async loadLayers(): Promise<void> {
@@ -80,6 +88,7 @@ export class EditorStore {
       );
 
       this.savedLayerIds = new Set(current.map(l => l.id));
+      this.savedSnapshot.set(layersKey(current));
     } finally {
       this.isSaving.set(false);
     }
