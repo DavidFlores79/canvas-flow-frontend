@@ -68,6 +68,11 @@
         <span class="font-medium">{{ layer.properties.rotation }}°</span>
       </div>
     </div>
+
+    @if (layer.type === 'image') {
+      <app-image-transform-panel />
+    }
+
   } @else {
     <p class="text-xs text-gray-400">Select a layer to inspect</p>
   }

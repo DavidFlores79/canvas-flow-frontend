@@ -1,9 +1,11 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { EditorStore } from '../../../application/stores/editor.store';
+import { ImageTransformPanelComponent } from '../image-transform-panel/image-transform-panel.component';
 
 @Component({
   selector: 'app-inspector',
   standalone: true,
+  imports: [ImageTransformPanelComponent],
   templateUrl: './inspector.component.html',
 })
 export class InspectorComponent {
