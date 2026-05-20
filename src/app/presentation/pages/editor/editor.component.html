@@ -4,9 +4,56 @@
     <div class="flex items-center gap-3">
       <a href="/dashboard" class="text-sm text-gray-600 hover:text-gray-900">Back</a>
       <span class="text-gray-300">|</span>
-      <span class="font-semibold text-gray-800">
-        {{ editorStore.activeProject()?.name ?? 'Loading...' }}
-      </span>
+
+      <!-- Project switcher -->
+      <div class="flex items-center gap-2">
+        <select
+          class="appearance-none bg-white border border-gray-200 rounded-md px-3 py-1 text-sm font-semibold text-gray-800 pr-8 cursor-pointer"
+          [value]="editorStore.activeProject()?.id"
+          (change)="switchProject($event)"
+        >
+          @for (project of projects(); track project.id) {
+            <option [value]="project.id">{{ project.name }}</option>
+          }
+        </select>
+
+        <!-- Delete project (only when more than one exists) -->
+        @if (projects().length > 1) {
+          <button
+            class="w-6 h-6 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-500 text-xs"
+            title="Delete project"
+            (click)="deleteProject(editorStore.activeProject()!.id)"
+          >✕</button>
+        }
+
+        <!-- New project -->
+        @if (showNewProjectInput()) {
+          <input
+            class="border border-gray-300 rounded-md px-2 py-1 text-sm w-36 focus:outline-none focus:ring-1 focus:ring-blue-400"
+            placeholder="Project name"
+            [ngModel]="newProjectName()"
+            (ngModelChange)="newProjectName.set($event)"
+            (keydown.enter)="createProject()"
+            (keydown.escape)="showNewProjectInput.set(false)"
+            autofocus
+          />
+          <button
+            class="text-xs px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            [disabled]="isCreatingProject() || !newProjectName().trim()"
+            (click)="createProject()"
+          >{{ isCreatingProject() ? '...' : 'Add' }}</button>
+          <button
+            class="text-xs px-2 py-1 text-gray-500 hover:text-gray-700"
+            (click)="showNewProjectInput.set(false)"
+          >Cancel</button>
+        } @else {
+          <button
+            class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 text-lg leading-none"
+            title="New project"
+            (click)="showNewProjectInput.set(true)"
+          >+</button>
+        }
+      </div>
     </div>
     <div class="flex items-center gap-3">
       <app-org-switcher />

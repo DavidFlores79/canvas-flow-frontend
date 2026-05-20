@@ -17,6 +17,7 @@ import { EditorStore } from '../../../application/stores/editor.store';
 import { WorkspaceApiService } from '../../../data/services/workspace-api.service';
 import { ProjectApiService } from '../../../data/services/project-api.service';
 import { Project } from '../../../domain/models/project.model';
+import { FormsModule } from '@angular/forms';
 import { CanvasComponent } from '../../components/canvas/canvas.component';
 import { ToolbarComponent } from '../../components/toolbar/toolbar.component';
 import { InspectorComponent } from '../../components/inspector/inspector.component';
@@ -36,6 +37,7 @@ interface TabItem {
   selector: 'app-editor',
   standalone: true,
   imports: [
+    FormsModule,
     CanvasComponent,
     ToolbarComponent,
     InspectorComponent,
@@ -58,6 +60,10 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly isLoading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly activeTab = signal<SideTab>('layers');
+  protected readonly isCreatingProject = signal(false);
+  protected readonly newProjectName = signal('');
+  protected readonly showNewProjectInput = signal(false);
+  private workspaceId = signal<string | null>(null);
 
   private readonly ZOOM_STEPS = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
   protected readonly zoom = signal(1);
@@ -79,6 +85,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
       void this.router.navigate(['/dashboard']);
       return;
     }
+    this.workspaceId.set(workspaceId);
 
     try {
       const [workspace, projectList] = await Promise.all([
@@ -112,6 +119,41 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
     void this.editorStore.loadLayers();
     // Defer until the viewport has been measured by ResizeObserver/AfterViewInit
     setTimeout(() => this.fitPage());
+  }
+
+  switchProject(event: Event): void {
+    const projectId = (event.target as HTMLSelectElement).value;
+    const project = this.projects().find(p => p.id === projectId);
+    if (project) this.loadProject(project);
+  }
+
+  async createProject(): Promise<void> {
+    const name = this.newProjectName().trim();
+    const wsId = this.workspaceId();
+    if (!name || !wsId) return;
+    this.isCreatingProject.set(true);
+    try {
+      const project = await firstValueFrom(
+        this.projectApi.create({ name, workspaceId: wsId, width: 1200, height: 800 }),
+      );
+      this.projects.update(list => [...list, project]);
+      this.loadProject(project);
+      this.newProjectName.set('');
+      this.showNewProjectInput.set(false);
+    } finally {
+      this.isCreatingProject.set(false);
+    }
+  }
+
+  async deleteProject(projectId: string): Promise<void> {
+    const list = this.projects();
+    if (list.length <= 1) return;
+    await firstValueFrom(this.projectApi.delete(projectId));
+    const remaining = list.filter(p => p.id !== projectId);
+    this.projects.set(remaining);
+    if (this.editorStore.activeProject()?.id === projectId) {
+      this.loadProject(remaining[0]);
+    }
   }
 
   setTab(tab: SideTab): void {
