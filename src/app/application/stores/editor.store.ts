@@ -119,7 +119,32 @@ export class EditorStore {
   updateProjectSize(width: number, height: number): void {
     const project = this.activeProject();
     if (!project) return;
+
+    const scaleX = width / project.width;
+    const scaleY = height / project.height;
+
+    const scaledLayers = this.layers()
+      .map(l => ({
+        ...l,
+        properties: {
+          ...l.properties,
+          x: l.properties.x * scaleX,
+          y: l.properties.y * scaleY,
+          width: l.properties.width * scaleX,
+          height: l.properties.height * scaleY,
+        },
+      }))
+      .filter(l => {
+        const { x, y, width: w, height: h } = l.properties;
+        return x + w > 0 && y + h > 0 && x < width && y < height;
+      });
+
+    const removedIds = new Set(this.layers().map(l => l.id));
+    scaledLayers.forEach(l => removedIds.delete(l.id));
+    this.selectedLayerIds.update(ids => ids.filter(id => !removedIds.has(id)));
+
     this.activeProject.set({ ...project, width, height });
+    this.commitHistory(scaledLayers);
   }
 
   fitProjectToViewport(): void {

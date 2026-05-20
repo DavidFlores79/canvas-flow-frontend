@@ -27,16 +27,28 @@
         />
       </label>
 
-      <div class="flex gap-2">
+      @if (pendingConfirm()) {
+        <div class="rounded-md bg-red-50 border border-red-200 px-2 py-2 space-y-2">
+          <p class="text-xs text-red-700 leading-snug">
+            {{ layersOutsideCount() }} {{ layersOutsideCount() === 1 ? 'layer' : 'layers' }} will be removed — {{ layersOutsideCount() === 1 ? 'it falls' : 'they fall' }} completely outside the new canvas. This cannot be undone after saving.
+          </p>
+          <div class="flex gap-2">
+            <button
+              class="flex-1 text-xs bg-red-600 text-white rounded px-2 py-1 hover:bg-red-700"
+              (click)="applyCanvasSize()"
+            >Confirm</button>
+            <button
+              class="flex-1 text-xs bg-gray-100 text-gray-700 rounded px-2 py-1 hover:bg-gray-200"
+              (click)="cancelApply()"
+            >Cancel</button>
+          </div>
+        </div>
+      } @else {
         <button
-          class="flex-1 text-xs bg-blue-50 text-blue-700 rounded px-2 py-1 hover:bg-blue-100"
+          class="w-full text-xs bg-blue-50 text-blue-700 rounded px-2 py-1 hover:bg-blue-100"
           (click)="applyCanvasSize()"
         >Apply</button>
-        <button
-          class="flex-1 text-xs bg-gray-100 text-gray-700 rounded px-2 py-1 hover:bg-gray-200"
-          (click)="fitCanvasToViewport()"
-        >Fit to Space</button>
-      </div>
+      }
     </div>
   }
 
@@ -49,23 +61,23 @@
       </div>
       <div class="flex justify-between">
         <span class="text-gray-500">X</span>
-        <span class="font-medium">{{ layer.properties.x }}</span>
+        <span class="font-medium">{{ round(layer.properties.x) }}</span>
       </div>
       <div class="flex justify-between">
         <span class="text-gray-500">Y</span>
-        <span class="font-medium">{{ layer.properties.y }}</span>
+        <span class="font-medium">{{ round(layer.properties.y) }}</span>
       </div>
       <div class="flex justify-between">
         <span class="text-gray-500">W</span>
-        <span class="font-medium">{{ layer.properties.width }}</span>
+        <span class="font-medium">{{ round(layer.properties.width) }}</span>
       </div>
       <div class="flex justify-between">
         <span class="text-gray-500">H</span>
-        <span class="font-medium">{{ layer.properties.height }}</span>
+        <span class="font-medium">{{ round(layer.properties.height) }}</span>
       </div>
       <div class="flex justify-between">
         <span class="text-gray-500">Rotation</span>
-        <span class="font-medium">{{ layer.properties.rotation }}°</span>
+        <span class="font-medium">{{ round(layer.properties.rotation) }}°</span>
       </div>
     </div>
 

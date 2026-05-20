@@ -397,14 +397,22 @@ const selectedIds = this.editorStore.selectedLayerIds();
     const project = this.editorStore.activeProject();
     const filename = (project?.name ?? 'canvas').replace(/\s+/g, '-').toLowerCase();
 
+    const active = this.canvas.getActiveObject();
+    const crop = active ? active.getBoundingRect() : null;
+
     if (format === 'svg') {
-      const svg = this.canvas.toSVG();
+      const viewBox = crop
+        ? { x: crop.left, y: crop.top, width: crop.width, height: crop.height }
+        : undefined;
+      const svg = this.canvas.toSVG({ viewBox } as Parameters<typeof this.canvas.toSVG>[0]);
       const blob = new Blob([svg], { type: 'image/svg+xml' });
       this.triggerDownload(URL.createObjectURL(blob), `${filename}.svg`);
       return;
     }
 
-    const dataUrl = this.canvas.toDataURL({ format, quality: 1, multiplier: 1 });
+    const dataUrl = crop
+      ? this.canvas.toDataURL({ format, quality: 1, multiplier: 1, left: crop.left, top: crop.top, width: crop.width, height: crop.height })
+      : this.canvas.toDataURL({ format, quality: 1, multiplier: 1 });
     this.triggerDownload(dataUrl, `${filename}.${format}`);
   }
 

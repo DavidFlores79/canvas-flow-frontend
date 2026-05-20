@@ -11,12 +11,12 @@
       <!-- Image info -->
       <div class="rounded-md bg-gray-50 border border-gray-100 px-3 py-2 space-y-1">
         @if (imageMeta()) {
-          <div class="flex justify-between text-xs text-gray-500">
-            <span class="font-medium text-gray-600">Dimensions</span>
-            <span>{{ imageMeta()!.naturalWidth }} × {{ imageMeta()!.naturalHeight }} px</span>
+          <div class="flex items-center justify-between gap-2 text-xs text-gray-500">
+            <span class="font-medium text-gray-600 shrink-0">Dimensions</span>
+            <span class="whitespace-nowrap">{{ imageMeta()!.naturalWidth }} × {{ imageMeta()!.naturalHeight }} px</span>
           </div>
-          <div class="flex justify-between text-xs text-gray-500">
-            <span class="font-medium text-gray-600">Format</span>
+          <div class="flex items-center justify-between gap-2 text-xs text-gray-500">
+            <span class="font-medium text-gray-600 shrink-0">Format</span>
             <span>{{ imageMeta()!.format }}</span>
           </div>
         } @else {
@@ -102,10 +102,12 @@
         >
           <option value="original">Original</option>
           <option value="jpg">JPG</option>
-          <option value="png">PNG</option>
           <option value="webp">WebP</option>
           <option value="avif">AVIF</option>
         </select>
+        @if (format() === 'original' && imageMeta()) {
+          <p class="mt-1 text-[11px] text-gray-400">Keeping original format ({{ imageMeta()!.format }})</p>
+        }
       </div>
 
       <div class="border-t border-gray-100"></div>
@@ -117,20 +119,18 @@
           <div>
             <label class="block text-xs text-gray-500 mb-1">Width</label>
             <input
-              type="number" min="0"
-              [placeholder]="imageMeta() ? imageMeta()!.naturalWidth.toString() : 'auto'"
+              type="number" min="1"
               class="w-full border border-gray-200 rounded px-2 py-1 text-xs"
-              [value]="widthInput() || ''"
+              [value]="widthInput() > 0 ? widthInput() : (imageMeta()?.naturalWidth ?? '')"
               (input)="onNumberInput(widthInput.set.bind(widthInput), $event)"
             />
           </div>
           <div>
             <label class="block text-xs text-gray-500 mb-1">Height</label>
             <input
-              type="number" min="0"
-              [placeholder]="imageMeta() ? imageMeta()!.naturalHeight.toString() : 'auto'"
+              type="number" min="1"
               class="w-full border border-gray-200 rounded px-2 py-1 text-xs"
-              [value]="heightInput() || ''"
+              [value]="heightInput() > 0 ? heightInput() : (imageMeta()?.naturalHeight ?? '')"
               (input)="onNumberInput(heightInput.set.bind(heightInput), $event)"
             />
           </div>

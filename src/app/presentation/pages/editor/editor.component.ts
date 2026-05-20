@@ -2,9 +2,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   OnDestroy,
   OnInit,
   ViewChild,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -57,6 +59,10 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly error = signal<string | null>(null);
   protected readonly activeTab = signal<SideTab>('layers');
 
+  private readonly ZOOM_STEPS = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
+  protected readonly zoom = signal(1);
+  protected readonly zoomPercent = computed(() => Math.round(this.zoom() * 100));
+
   protected readonly tabs: TabItem[] = [
     { key: 'layers', label: 'Layers' },
     { key: 'assets', label: 'Assets' },
@@ -104,6 +110,8 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadProject(project: Project): void {
     this.editorStore.setProject(project);
     void this.editorStore.loadLayers();
+    // Defer until the viewport has been measured by ResizeObserver/AfterViewInit
+    setTimeout(() => this.fitPage());
   }
 
   setTab(tab: SideTab): void {
@@ -129,6 +137,38 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
     updateViewport();
     this.resizeObserver = new ResizeObserver(() => updateViewport());
     this.resizeObserver.observe(viewportEl);
+  }
+
+  zoomIn(): void {
+    const next = this.ZOOM_STEPS.find(s => s > this.zoom());
+    if (next) this.zoom.set(next);
+  }
+
+  zoomOut(): void {
+    const prev = [...this.ZOOM_STEPS].reverse().find(s => s < this.zoom());
+    if (prev) this.zoom.set(prev);
+  }
+
+  zoomReset(): void {
+    this.zoom.set(1);
+  }
+
+  fitPage(): void {
+    const vp = this.canvasViewport?.nativeElement;
+    const project = this.editorStore.activeProject();
+    if (!vp || !project) return;
+    const pad = 64;
+    const scaleX = (vp.clientWidth - pad) / project.width;
+    const scaleY = (vp.clientHeight - pad) / project.height;
+    this.zoom.set(Math.min(scaleX, scaleY, 3));
+  }
+
+  @HostListener('wheel', ['$event'])
+  onWheel(e: WheelEvent): void {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    if (e.deltaY < 0) this.zoomIn();
+    else this.zoomOut();
   }
 
   ngOnDestroy(): void {

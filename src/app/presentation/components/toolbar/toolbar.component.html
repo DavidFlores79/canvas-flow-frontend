@@ -39,19 +39,26 @@
 
   <div class="relative">
     <button
-      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 whitespace-nowrap"
       (click)="showExportMenu = !showExportMenu"
-    >Export ▾</button>
+    >{{ hasSelection() ? 'Export selection' : 'Export canvas' }} ▾</button>
 
     @if (showExportMenu) {
-      <ul
-        class="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm min-w-[100px]"
+      <div
+        class="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm min-w-[180px]"
         (mouseleave)="showExportMenu = false"
       >
-        <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('png')">PNG</li>
-        <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('jpeg')">JPEG</li>
-        <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('svg')">SVG</li>
-      </ul>
+        @if (hasSelection()) {
+          <div class="px-3 py-2 mb-1 mx-1 rounded bg-amber-50 border border-amber-200 text-xs text-amber-700 leading-snug">
+            Only the {{ selectionCount() === 1 ? 'selected element' : selectionCount() + ' selected elements' }} will be exported.
+          </div>
+        }
+        <ul>
+          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('png')">PNG</li>
+          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('jpeg')">JPEG</li>
+          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('svg')">SVG</li>
+        </ul>
+      </div>
     }
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, computed, inject } from '@angular/core';
 import { EditorStore, ToolType } from '../../../application/stores/editor.store';
 
 export type ExportFormat = 'png' | 'jpeg' | 'svg';
@@ -25,6 +25,8 @@ export class ToolbarComponent {
   ];
 
   protected showExportMenu = false;
+  protected readonly hasSelection = computed(() => this.editorStore.selectedLayers().length > 0);
+  protected readonly selectionCount = computed(() => this.editorStore.selectedLayers().length);
 
   selectTool(tool: ToolType): void {
     this.editorStore.setActiveTool(tool);
