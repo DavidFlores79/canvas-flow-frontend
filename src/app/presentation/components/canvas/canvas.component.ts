@@ -9,6 +9,7 @@ import {
   ViewChild,
   effect,
   inject,
+  signal,
   untracked,
 } from '@angular/core';
 import * as fabric from 'fabric';
@@ -21,6 +22,18 @@ import { Layer } from '../../../domain/models/layer.model';
   template: `
     <div class="relative bg-white shadow-md" [style.width.px]="width" [style.height.px]="height">
       <canvas #canvasEl [width]="width" [height]="height"></canvas>
+      @if (contextMenu().visible) {
+        <ul
+          class="absolute z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm"
+          [style.left.px]="contextMenu().x"
+          [style.top.px]="contextMenu().y"
+        >
+          <li
+            class="px-4 py-2 hover:bg-red-50 hover:text-red-600 cursor-pointer"
+            (mousedown)="deleteSelectedLayers()"
+          >Delete</li>
+        </ul>
+      }
     </div>
   `,
 })
@@ -33,6 +46,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
   private canvas!: fabric.Canvas;
   private _isRendering = false;
   protected readonly editorStore = inject(EditorStore);
+  protected readonly contextMenu = signal<{ visible: boolean; x: number; y: number }>({ visible: false, x: 0, y: 0 });
 
   constructor() {
     // Re-render whenever layers signal changes (handles add, remove, undo, redo)
@@ -62,21 +76,19 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       selection: this.editorStore.canEdit(),
     });
 
-    this.canvas.on('selection:created', (e) => {
+    const syncSelection = () => {
       if (this._isRendering) return;
-      const ids = (e.selected ?? [])
+      const active = this.canvas.getActiveObject();
+      const objects: fabric.FabricObject[] =
+        active instanceof fabric.ActiveSelection ? active.getObjects() : active ? [active] : [];
+      const ids = objects
         .map((obj) => (obj as fabric.FabricObject & { layerId?: string }).layerId)
         .filter((id): id is string => typeof id === 'string');
       this.editorStore.selectLayers(ids);
-    });
+    };
 
-    this.canvas.on('selection:updated', (e) => {
-      if (this._isRendering) return;
-      const ids = (e.selected ?? [])
-        .map((obj) => (obj as fabric.FabricObject & { layerId?: string }).layerId)
-        .filter((id): id is string => typeof id === 'string');
-      this.editorStore.selectLayers(ids);
-    });
+    this.canvas.on('selection:created', syncSelection);
+    this.canvas.on('selection:updated', syncSelection);
 
     this.canvas.on('selection:cleared', () => {
       if (this._isRendering) return;
@@ -101,7 +113,6 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.canvas.on('mouse:down', (e) => {
       const tool = this.editorStore.activeTool();
       if (tool === 'select' || !this.editorStore.canEdit()) return;
-      if (e.target) return; // clicked on an existing object
 
       const point = e.scenePoint ?? this.canvas.getScenePoint(e.e);
       const nextZIndex = this.editorStore
@@ -141,6 +152,30 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       this.editorStore.addLayer(layer);
       this.editorStore.setActiveTool('select');
     });
+
+    this.canvas.on('mouse:down', () => this.contextMenu.set({ visible: false, x: 0, y: 0 }));
+
+    this.canvas.on('mouse:down:before', (e) => {
+      if ((e.e as MouseEvent).button === 2) {
+        const active = this.canvas.getActiveObject();
+        if (!active || !this.editorStore.canEdit()) return;
+        e.e.preventDefault();
+        const rect = this.canvasEl.nativeElement.getBoundingClientRect();
+        const me = e.e as MouseEvent;
+        this.contextMenu.set({ visible: true, x: me.clientX - rect.left, y: me.clientY - rect.top });
+      }
+    });
+
+    this.canvasEl.nativeElement.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      const active = this.canvas.getActiveObject();
+      if (!active || !this.editorStore.canEdit()) return;
+      if (active instanceof fabric.Textbox && active.isEditing) return;
+      e.preventDefault();
+      this.deleteSelectedLayers();
+    });
+
+    this.canvasEl.nativeElement.setAttribute('tabindex', '0');
 
     // Initial render of any pre-loaded layers
     this.renderLayers(this.editorStore.layers());
@@ -246,6 +281,12 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
+  protected deleteSelectedLayers(): void {
+    this.contextMenu.set({ visible: false, x: 0, y: 0 });
+    const ids = this.editorStore.selectedLayerIds();
+    ids.forEach(id => this.editorStore.removeLayer(id));
+  }
+
   private saveLayerFromObject(
     obj: (fabric.FabricObject & { layerId?: string }) | undefined,
     includeContent: boolean,
@@ -335,6 +376,28 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
     if (obj instanceof fabric.Textbox || obj instanceof fabric.IText) {
       obj.set({ editable: canEdit });
     }
+  }
+
+  exportAs(format: 'png' | 'jpeg' | 'svg'): void {
+    const project = this.editorStore.activeProject();
+    const filename = (project?.name ?? 'canvas').replace(/\s+/g, '-').toLowerCase();
+
+    if (format === 'svg') {
+      const svg = this.canvas.toSVG();
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      this.triggerDownload(URL.createObjectURL(blob), `${filename}.svg`);
+      return;
+    }
+
+    const dataUrl = this.canvas.toDataURL({ format, quality: 1, multiplier: 1 });
+    this.triggerDownload(dataUrl, `${filename}.${format}`);
+  }
+
+  private triggerDownload(url: string, filename: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
   }
 
   ngOnDestroy(): void {

@@ -26,4 +26,30 @@
     [disabled]="!editorStore.canEdit()"
     (click)="redo()"
   >Redo</button>
+
+  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+
+  <button
+    class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-40"
+    [disabled]="!editorStore.canEdit() || editorStore.isSaving()"
+    (click)="save()"
+  >{{ editorStore.isSaving() ? 'Saving...' : 'Save' }}</button>
+
+  <div class="relative">
+    <button
+      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+      (click)="showExportMenu = !showExportMenu"
+    >Export ▾</button>
+
+    @if (showExportMenu) {
+      <ul
+        class="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm min-w-[100px]"
+        (mouseleave)="showExportMenu = false"
+      >
+        <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('png')">PNG</li>
+        <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('jpeg')">JPEG</li>
+        <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('svg')">SVG</li>
+      </ul>
+    }
+  </div>
 </div>

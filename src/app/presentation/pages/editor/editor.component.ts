@@ -64,6 +64,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   @ViewChild('canvasViewport') canvasViewport?: ElementRef<HTMLElement>;
+  @ViewChild('canvasRef') canvasRef!: CanvasComponent;
   private resizeObserver?: ResizeObserver;
 
   async ngOnInit(): Promise<void> {
@@ -102,7 +103,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadProject(project: Project): void {
     this.editorStore.setProject(project);
-    this.editorStore.setLayers([]);
+    void this.editorStore.loadLayers();
   }
 
   setTab(tab: SideTab): void {

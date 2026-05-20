@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { EditorStore, ToolType } from '../../../application/stores/editor.store';
+
+export type ExportFormat = 'png' | 'jpeg' | 'svg';
 
 interface Tool {
   key: ToolType;
@@ -14,11 +16,15 @@ interface Tool {
 export class ToolbarComponent {
   protected readonly editorStore = inject(EditorStore);
 
+  @Output() readonly exportRequested = new EventEmitter<ExportFormat>();
+
   protected readonly tools: Tool[] = [
     { key: 'select', label: 'Select' },
     { key: 'text', label: 'Text' },
     { key: 'shape', label: 'Shape' },
   ];
+
+  protected showExportMenu = false;
 
   selectTool(tool: ToolType): void {
     this.editorStore.setActiveTool(tool);
@@ -30,5 +36,14 @@ export class ToolbarComponent {
 
   redo(): void {
     this.editorStore.redo();
+  }
+
+  save(): void {
+    void this.editorStore.saveLayers();
+  }
+
+  export(format: ExportFormat): void {
+    this.showExportMenu = false;
+    this.exportRequested.emit(format);
   }
 }

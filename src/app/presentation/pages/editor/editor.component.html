@@ -15,7 +15,7 @@
   </header>
 
   <!-- Toolbar -->
-  <app-toolbar class="flex-shrink-0" />
+  <app-toolbar class="flex-shrink-0" (exportRequested)="canvasRef.exportAs($event)" />
 
   @if (isLoading()) {
     <div class="flex-1 flex items-center justify-center">
@@ -52,6 +52,7 @@
       <!-- Canvas area -->
       <main #canvasViewport class="flex-1 overflow-auto flex items-start justify-center p-8">
         <app-canvas
+          #canvasRef
           [width]="editorStore.activeProject()?.width ?? 1200"
           [height]="editorStore.activeProject()?.height ?? 800"
         />
