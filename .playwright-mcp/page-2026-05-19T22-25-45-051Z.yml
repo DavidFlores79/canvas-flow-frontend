@@ -1,0 +1,28 @@
+- generic [ref=e35]:
+  - banner [ref=e36]:
+    - generic [ref=e37]:
+      - link "Back" [ref=e38] [cursor=pointer]:
+        - /url: /dashboard
+      - generic [ref=e39]: "|"
+      - generic [ref=e40]: Test Project
+    - generic [ref=e42]: owner
+  - generic [ref=e44]:
+    - button "Select" [ref=e45] [cursor=pointer]
+    - button "Text" [active] [ref=e46] [cursor=pointer]
+    - button "Shape" [ref=e47] [cursor=pointer]
+    - button "Undo" [ref=e49] [cursor=pointer]
+    - button "Redo" [ref=e50] [cursor=pointer]
+  - generic [ref=e51]:
+    - complementary [ref=e52]:
+      - generic [ref=e53]:
+        - button "Layers" [ref=e54] [cursor=pointer]
+        - button "Assets" [ref=e55] [cursor=pointer]
+        - button "AI" [ref=e56] [cursor=pointer]
+      - generic [ref=e58]:
+        - heading "Layers" [level=3] [ref=e59]
+        - paragraph [ref=e60]: No layers yet
+    - main [ref=e61]
+    - complementary [ref=e67]:
+      - generic [ref=e69]:
+        - heading "Inspector" [level=3] [ref=e70]
+        - paragraph [ref=e71]: Select a layer to inspect

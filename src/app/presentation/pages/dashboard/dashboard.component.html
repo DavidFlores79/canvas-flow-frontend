@@ -1,0 +1,37 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+    <h1 class="text-lg font-bold text-gray-900">Canvas Flow</h1>
+    <div class="flex items-center gap-4">
+      <app-org-switcher />
+      <span class="text-sm text-gray-600">{{ authStore.currentUser()?.email }}</span>
+      <button
+        class="text-sm text-gray-500 hover:text-gray-800"
+        (click)="signOut()"
+      >Sign out</button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="max-w-5xl mx-auto p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Workspaces</h2>
+
+    @if (isLoading()) {
+      <p class="text-gray-400">Loading workspaces…</p>
+    }
+
+    @if (error()) {
+      <p class="text-red-500">{{ error() }}</p>
+    }
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      @for (ws of workspaces(); track ws.id) {
+        <app-workspace-card [workspace]="ws" (selected)="onWorkspaceSelected($event)" />
+      }
+    </div>
+
+    @if (!isLoading() && workspaces().length === 0 && !error()) {
+      <p class="text-gray-400 mt-4">No workspaces found.</p>
+    }
+  </main>
+</div>

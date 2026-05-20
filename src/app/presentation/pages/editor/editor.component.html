@@ -1,0 +1,108 @@
+<div class="h-screen flex flex-col bg-gray-100 overflow-hidden">
+  <!-- App header -->
+  <header class="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/dashboard" class="text-sm text-gray-600 hover:text-gray-900">Back</a>
+      <span class="text-gray-300">|</span>
+      <span class="font-semibold text-gray-800">
+        {{ editorStore.activeProject()?.name ?? 'Loading...' }}
+      </span>
+    </div>
+    <div class="flex items-center gap-3">
+      <app-org-switcher />
+      <span class="text-xs text-gray-400">{{ authStore.orgRole() }}</span>
+    </div>
+  </header>
+
+  <!-- Toolbar -->
+  <app-toolbar class="flex-shrink-0" (exportRequested)="canvasRef.exportAs($event)" />
+
+  @if (isLoading()) {
+    <div class="flex-1 flex items-center justify-center">
+      <p class="text-gray-400">Loading editor...</p>
+    </div>
+  } @else if (error()) {
+    <div class="flex-1 flex items-center justify-center">
+      <p class="text-red-500">{{ error() }}</p>
+    </div>
+  } @else {
+    <!-- Editor workspace -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Left sidebar: tabs -->
+      <aside class="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-y-auto">
+        <div class="flex border-b border-gray-200">
+          @for (tab of tabs; track tab.key) {
+            <button
+              class="flex-1 text-xs py-2 transition-colors"
+              [class.bg-blue-50]="activeTab() === tab.key"
+              [class.text-blue-700]="activeTab() === tab.key"
+              [class.text-gray-500]="activeTab() !== tab.key"
+              (click)="setTab(tab.key)"
+            >{{ tab.label }}</button>
+          }
+        </div>
+
+        @switch (activeTab()) {
+          @case ('layers') { <app-layers-panel /> }
+          @case ('assets') { <app-assets-panel /> }
+          @case ('ai') { <app-ai-panel /> }
+        }
+      </aside>
+
+      <!-- Canvas column: scrollable viewport + fixed zoom bar -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <main #canvasViewport class="flex-1 overflow-auto flex items-start justify-center p-8">
+          <div
+            class="origin-top"
+            [style.transform]="'scale(' + zoom() + ')'"
+            [style.margin-bottom.px]="(editorStore.activeProject()?.height ?? 800) * (zoom() - 1)"
+          >
+            <app-canvas
+              #canvasRef
+              [width]="editorStore.activeProject()?.width ?? 1200"
+              [height]="editorStore.activeProject()?.height ?? 800"
+            />
+          </div>
+        </main>
+
+        <!-- Zoom controls — outside scroll area so they stay fixed -->
+        <div class="flex-shrink-0 flex items-center justify-center py-2 bg-gray-100 border-t border-gray-200">
+          <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg shadow px-2 py-1">
+            <button
+              class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 disabled:opacity-40 text-base leading-none"
+              [disabled]="zoom() <= 0.1"
+              (click)="zoomOut()"
+              title="Zoom out"
+            >−</button>
+
+            <button
+              class="w-14 text-xs text-center text-gray-700 hover:bg-gray-100 rounded py-1 tabular-nums"
+              (click)="zoomReset()"
+              title="Reset to 100%"
+            >{{ zoomPercent() }}%</button>
+
+            <button
+              class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 disabled:opacity-40 text-base leading-none"
+              [disabled]="zoom() >= 3"
+              (click)="zoomIn()"
+              title="Zoom in"
+            >+</button>
+
+            <div class="w-px h-4 bg-gray-200 mx-1"></div>
+
+            <button
+              class="px-2 h-7 text-xs text-gray-600 rounded hover:bg-gray-100"
+              (click)="fitPage()"
+              title="Fit page"
+            >Fit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right sidebar: inspector -->
+      <aside class="w-52 flex-shrink-0 bg-white border-l border-gray-200 overflow-y-auto">
+        <app-inspector />
+      </aside>
+    </div>
+  }
+</div>

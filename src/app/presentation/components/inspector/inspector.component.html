@@ -1,0 +1,91 @@
+<div class="p-4">
+  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Inspector</h3>
+
+  @if (editorStore.activeProject()) {
+    <div class="mb-4 border border-gray-200 rounded-md p-3 space-y-2">
+      <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Canvas Size</p>
+
+      <label class="block text-xs text-gray-500">
+        Width
+        <input
+          type="number"
+          min="320"
+          class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+          [value]="canvasWidth()"
+          (input)="onWidthInput($event)"
+        />
+      </label>
+
+      <label class="block text-xs text-gray-500">
+        Height
+        <input
+          type="number"
+          min="240"
+          class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+          [value]="canvasHeight()"
+          (input)="onHeightInput($event)"
+        />
+      </label>
+
+      @if (pendingConfirm()) {
+        <div class="rounded-md bg-red-50 border border-red-200 px-2 py-2 space-y-2">
+          <p class="text-xs text-red-700 leading-snug">
+            {{ layersOutsideCount() }} {{ layersOutsideCount() === 1 ? 'layer' : 'layers' }} will be removed — {{ layersOutsideCount() === 1 ? 'it falls' : 'they fall' }} completely outside the new canvas. This cannot be undone after saving.
+          </p>
+          <div class="flex gap-2">
+            <button
+              class="flex-1 text-xs bg-red-600 text-white rounded px-2 py-1 hover:bg-red-700"
+              (click)="applyCanvasSize()"
+            >Confirm</button>
+            <button
+              class="flex-1 text-xs bg-gray-100 text-gray-700 rounded px-2 py-1 hover:bg-gray-200"
+              (click)="cancelApply()"
+            >Cancel</button>
+          </div>
+        </div>
+      } @else {
+        <button
+          class="w-full text-xs bg-blue-50 text-blue-700 rounded px-2 py-1 hover:bg-blue-100"
+          (click)="applyCanvasSize()"
+        >Apply</button>
+      }
+    </div>
+  }
+
+  @if (editorStore.selectedLayers().length === 1) {
+    @let layer = editorStore.selectedLayers()[0];
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span class="text-gray-500">Type</span>
+        <span class="font-medium">{{ layer.type }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">X</span>
+        <span class="font-medium">{{ round(layer.properties.x) }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Y</span>
+        <span class="font-medium">{{ round(layer.properties.y) }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">W</span>
+        <span class="font-medium">{{ round(layer.properties.width) }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">H</span>
+        <span class="font-medium">{{ round(layer.properties.height) }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Rotation</span>
+        <span class="font-medium">{{ round(layer.properties.rotation) }}°</span>
+      </div>
+    </div>
+
+    @if (layer.type === 'image') {
+      <app-image-transform-panel />
+    }
+
+  } @else {
+    <p class="text-xs text-gray-400">Select a layer to inspect</p>
+  }
+</div>

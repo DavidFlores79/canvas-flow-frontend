@@ -1,0 +1,5 @@
+[     129ms] [LOG] Angular is running in development mode. @ http://localhost:4200/@fs/Users/LAPTOP-david-001/Development/apps/Angular/canvas-flow-frontend/.angular/cache/20.3.26/canvas-flow-frontend/vite/deps/chunk-ONCGLZD2.js?v=3d48eba0:14746
+[     158ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3060/v1/workspaces?organizationId=6a0ccd3b321373de9bfbfc35:0
+[    9120ms] [LOG] Angular is running in development mode. @ http://localhost:4200/@fs/Users/LAPTOP-david-001/Development/apps/Angular/canvas-flow-frontend/.angular/cache/20.3.26/canvas-flow-frontend/vite/deps/chunk-ONCGLZD2.js?v=3d48eba0:14746
+[    9156ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3060/v1/workspaces?organizationId=6a0ccd3b321373de9bfbfc35:0
+[   19282ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:4200/login:0

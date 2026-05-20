@@ -1,0 +1,64 @@
+<div class="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200">
+  @for (tool of tools; track tool.key) {
+    <button
+      class="px-3 py-1 text-sm rounded-md transition-colors"
+      [class.bg-blue-100]="editorStore.activeTool() === tool.key"
+      [class.text-blue-700]="editorStore.activeTool() === tool.key"
+      [class.bg-gray-100]="editorStore.activeTool() !== tool.key"
+      [class.text-gray-700]="editorStore.activeTool() !== tool.key"
+      [disabled]="!editorStore.canEdit()"
+      (click)="selectTool(tool.key)"
+    >
+      {{ tool.label }}
+    </button>
+  }
+
+  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+
+  <button
+    class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+    [disabled]="!editorStore.canEdit()"
+    (click)="undo()"
+  >Undo</button>
+
+  <button
+    class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+    [disabled]="!editorStore.canEdit()"
+    (click)="redo()"
+  >Redo</button>
+
+  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+
+  <button
+    class="px-3 py-1 text-sm rounded-md hover:bg-blue-700 disabled:opacity-40 text-white transition-colors"
+    [class.bg-blue-600]="!editorStore.isDirty()"
+    [class.bg-orange-500]="editorStore.isDirty()"
+    [disabled]="!editorStore.canEdit() || editorStore.isSaving()"
+    (click)="save()"
+  >{{ editorStore.isSaving() ? 'Saving...' : (editorStore.isDirty() ? 'Save*' : 'Save') }}</button>
+
+  <div class="relative">
+    <button
+      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 whitespace-nowrap"
+      (click)="showExportMenu = !showExportMenu"
+    >{{ hasSelection() ? 'Export selection' : 'Export canvas' }} ▾</button>
+
+    @if (showExportMenu) {
+      <div
+        class="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm min-w-[180px]"
+        (mouseleave)="showExportMenu = false"
+      >
+        @if (hasSelection()) {
+          <div class="px-3 py-2 mb-1 mx-1 rounded bg-amber-50 border border-amber-200 text-xs text-amber-700 leading-snug">
+            Only the {{ selectionCount() === 1 ? 'selected element' : selectionCount() + ' selected elements' }} will be exported.
+          </div>
+        }
+        <ul>
+          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('png')">PNG</li>
+          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('jpeg')">JPEG</li>
+          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('svg')">SVG</li>
+        </ul>
+      </div>
+    }
+  </div>
+</div>
