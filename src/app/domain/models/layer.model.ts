@@ -4,7 +4,7 @@ export interface LayerTransforms {
   contrast?: number;
   blur?: number;
   grayscale?: boolean;
-  format?: 'original' | 'jpg' | 'png' | 'webp' | 'avif';
+  format?: 'original' | 'jpg' | 'png' | 'webp' | 'avif' | 'gif' | 'tiff';
   width?: number;
   height?: number;
 }

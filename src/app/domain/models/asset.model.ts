@@ -17,7 +17,7 @@ export interface TransformPayload {
   contrast?: number;
   grayscale?: boolean;
   blur?: number;
-  format?: 'jpg' | 'png' | 'webp' | 'avif';
+  format?: 'jpg' | 'png' | 'webp' | 'avif' | 'gif' | 'tiff';
 }
 
 export interface AiGeneratePayload {
