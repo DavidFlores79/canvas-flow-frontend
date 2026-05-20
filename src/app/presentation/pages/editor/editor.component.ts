@@ -23,10 +23,10 @@ import { ToolbarComponent } from '../../components/toolbar/toolbar.component';
 import { InspectorComponent } from '../../components/inspector/inspector.component';
 import { LayersPanelComponent } from '../../components/layers-panel/layers-panel.component';
 import { AssetsPanelComponent } from '../../components/assets-panel/assets-panel.component';
-import { AiPanelComponent } from '../../components/ai-panel/ai-panel.component';
+import { AiModalComponent } from '../../components/ai-modal/ai-modal.component';
 import { OrgSwitcherComponent } from '../../components/org-switcher/org-switcher.component';
 
-export type SideTab = 'layers' | 'assets' | 'ai';
+export type SideTab = 'layers' | 'assets';
 
 interface TabItem {
   key: SideTab;
@@ -43,7 +43,7 @@ interface TabItem {
     InspectorComponent,
     LayersPanelComponent,
     AssetsPanelComponent,
-    AiPanelComponent,
+    AiModalComponent,
     OrgSwitcherComponent,
   ],
   templateUrl: './editor.component.html',
@@ -72,8 +72,12 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly tabs: TabItem[] = [
     { key: 'layers', label: 'Layers' },
     { key: 'assets', label: 'Assets' },
-    { key: 'ai', label: 'AI' },
   ];
+
+  protected readonly showAiModal = signal(false);
+
+  openAiModal(): void { this.showAiModal.set(true); }
+  closeAiModal(): void { this.showAiModal.set(false); }
 
   @ViewChild('canvasViewport') canvasViewport?: ElementRef<HTMLElement>;
   @ViewChild('canvasRef') canvasRef!: CanvasComponent;

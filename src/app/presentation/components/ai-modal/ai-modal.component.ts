@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AiApiService } from '../../../data/services/ai-api.service';
@@ -7,15 +7,17 @@ import { Asset } from '../../../domain/models/asset.model';
 import { Layer } from '../../../domain/models/layer.model';
 
 @Component({
-  selector: 'app-ai-panel',
+  selector: 'app-ai-modal',
   standalone: true,
   imports: [ReactiveFormsModule],
-  templateUrl: './ai-panel.component.html',
+  templateUrl: './ai-modal.component.html',
 })
-export class AiPanelComponent {
+export class AiModalComponent {
   private readonly aiApi = inject(AiApiService);
   protected readonly editorStore = inject(EditorStore);
   private readonly fb = inject(FormBuilder);
+
+  @Output() readonly closed = new EventEmitter<void>();
 
   protected readonly isGenerating = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -116,5 +118,9 @@ export class AiPanelComponent {
       this.editorStore.selectLayers([layer.id]);
     };
     img.src = imageUrl;
+  }
+
+  close(): void {
+    this.closed.emit();
   }
 }
