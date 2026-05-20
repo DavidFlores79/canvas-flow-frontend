@@ -3,6 +3,7 @@ export type WorkspaceRole = 'owner' | 'editor' | 'viewer';
 
 export interface OrgSummary {
   readonly id: string;
+  readonly name: string;
   readonly role: OrgRole;
 }
 

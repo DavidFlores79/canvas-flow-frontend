@@ -13,10 +13,9 @@ export interface SwitchOrgPayload {
   organizationId: string;
 }
 
-export interface TokenResponse {
-  jwt: string;
-  refreshToken?: string;
-  organizationId?: string;
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,11 +28,11 @@ export class AuthApiService {
     return this.http.post<UserSession>(`${this.baseUrl}/auth/sign-in`, payload);
   }
 
-  switchOrganization(payload: SwitchOrgPayload): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.baseUrl}/auth/switch-organization`, payload);
+  switchOrganization(payload: SwitchOrgPayload): Observable<RefreshTokenResponse> {
+    return this.http.post<RefreshTokenResponse>(`${this.baseUrl}/auth/switch-organization`, payload);
   }
 
-  refreshToken(refreshToken: string): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.baseUrl}/auth/refresh`, { refreshToken });
+  refreshToken(refreshToken: string): Observable<RefreshTokenResponse> {
+    return this.http.post<RefreshTokenResponse>(`${this.baseUrl}/auth/refresh`, { refreshToken });
   }
 }

@@ -2,7 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { OrgRole, OrgSummary, User, UserSession } from '../../domain/models/user.model';
-import { AuthApiService, SignInPayload } from '../../data/services/auth-api.service';
+import { AuthApiService, RefreshTokenResponse, SignInPayload } from '../../data/services/auth-api.service';
 
 const TOKEN_KEY = 'cf_access_token';
 const REFRESH_KEY = 'cf_refresh_token';
@@ -19,6 +19,8 @@ export class AuthStore {
 
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
   readonly hasMultipleOrgs = computed(() => this.organizations().length > 1);
+
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor(
     private readonly authApi: AuthApiService,
@@ -47,18 +49,16 @@ export class AuthStore {
       const tokens = await firstValueFrom(
         this.authApi.switchOrganization({ organizationId }),
       );
-      if (tokens.jwt) {
-        localStorage.setItem(TOKEN_KEY, tokens.jwt);
+      if (tokens.accessToken) {
+        localStorage.setItem(TOKEN_KEY, tokens.accessToken);
       }
       if (tokens.refreshToken) {
         localStorage.setItem(REFRESH_KEY, tokens.refreshToken);
       }
-      if (tokens.organizationId) {
-        this.activeOrganizationId.set(tokens.organizationId);
-        localStorage.setItem(ORG_ID_KEY, tokens.organizationId);
-        const summary = this.organizations().find(o => o.id === tokens.organizationId);
-        this.orgRole.set(summary?.role ?? null);
-      }
+      this.activeOrganizationId.set(organizationId);
+      localStorage.setItem(ORG_ID_KEY, organizationId);
+      const summary = this.organizations().find(o => o.id === organizationId);
+      this.orgRole.set(summary?.role ?? null);
     } finally {
       this.isLoading.set(false);
     }
@@ -77,6 +77,30 @@ export class AuthStore {
 
   getAccessToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
+  }
+
+  async refreshSession(): Promise<boolean> {
+    if (this.refreshPromise) return this.refreshPromise;
+    this.refreshPromise = this._doRefresh();
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  private async _doRefresh(): Promise<boolean> {
+    const token = localStorage.getItem(REFRESH_KEY);
+    if (!token) { this.signOut(); return false; }
+    try {
+      const res = await firstValueFrom(this.authApi.refreshToken(token));
+      localStorage.setItem(TOKEN_KEY, res.accessToken);
+      localStorage.setItem(REFRESH_KEY, res.refreshToken);
+      return true;
+    } catch {
+      this.signOut();
+      return false;
+    }
   }
 
   private applySession(session: UserSession): void {
