@@ -9,8 +9,8 @@
       <div class="flex items-center gap-2">
         <select
           class="appearance-none bg-white border border-gray-200 rounded-md px-3 py-1 text-sm font-semibold text-gray-800 pr-8 cursor-pointer"
-          [value]="editorStore.activeProject()?.id"
-          (change)="switchProject($event)"
+          [ngModel]="editorStore.activeProject()?.id"
+          (ngModelChange)="switchProjectById($event)"
         >
           @for (project of projects(); track project.id) {
             <option [value]="project.id">{{ project.name }}</option>

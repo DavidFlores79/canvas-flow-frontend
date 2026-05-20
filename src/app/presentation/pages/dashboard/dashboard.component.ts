@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../application/stores/auth.store';
@@ -13,7 +13,7 @@ import { WorkspaceCardComponent } from '../../components/workspace-card/workspac
   imports: [OrgSwitcherComponent, WorkspaceCardComponent],
   templateUrl: './dashboard.component.html',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   protected readonly authStore = inject(AuthStore);
   private readonly workspaceApi = inject(WorkspaceApiService);
   private readonly router = inject(Router);
@@ -22,10 +22,17 @@ export class DashboardComponent implements OnInit {
   protected readonly isLoading = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  async ngOnInit(): Promise<void> {
-    const orgId = this.authStore.activeOrganizationId();
-    if (!orgId) return;
+  constructor() {
+    effect(() => {
+      const orgId = this.authStore.activeOrganizationId();
+      if (orgId) void this.loadWorkspaces(orgId);
+    });
+  }
+
+  private async loadWorkspaces(orgId: string): Promise<void> {
     this.isLoading.set(true);
+    this.error.set(null);
+    this.workspaces.set([]);
     try {
       const ws = await firstValueFrom(this.workspaceApi.listByOrganization(orgId));
       this.workspaces.set(ws);

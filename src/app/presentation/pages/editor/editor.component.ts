@@ -121,8 +121,7 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.fitPage());
   }
 
-  switchProject(event: Event): void {
-    const projectId = (event.target as HTMLSelectElement).value;
+  switchProjectById(projectId: string): void {
     const project = this.projects().find(p => p.id === projectId);
     if (project) this.loadProject(project);
   }
@@ -148,6 +147,9 @@ export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
   async deleteProject(projectId: string): Promise<void> {
     const list = this.projects();
     if (list.length <= 1) return;
+    const project = list.find(p => p.id === projectId);
+    const confirmed = window.confirm(`Delete "${project?.name ?? 'this project'}"? This cannot be undone.`);
+    if (!confirmed) return;
     await firstValueFrom(this.projectApi.delete(projectId));
     const remaining = list.filter(p => p.id !== projectId);
     this.projects.set(remaining);
