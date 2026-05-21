@@ -81,8 +81,8 @@ export class EditorStore {
       const deletedIds = [...this.savedLayerIds].filter(id => !currentIds.has(id));
       await Promise.all(deletedIds.map(id => firstValueFrom(this.layerApi.remove(project.id, id))));
 
-      // Create or update each current layer
-      await Promise.all(
+      // Create or update each current layer; replace local UUID with server ObjectId after create
+      const saved = await Promise.all(
         current.map(layer =>
           this.savedLayerIds.has(layer.id)
             ? firstValueFrom(this.layerApi.update(project.id, layer.id, layer))
@@ -90,8 +90,20 @@ export class EditorStore {
         ),
       );
 
-      this.savedLayerIds = new Set(current.map(l => l.id));
-      this.savedSnapshot.set(layersKey(current));
+      // Patch in-memory layers: swap local UUIDs for the ObjectIds the backend assigned
+      const idMap = new Map<string, string>();
+      current.forEach((layer, i) => {
+        const serverId = saved[i]?.id;
+        if (serverId && serverId !== layer.id) idMap.set(layer.id, serverId);
+      });
+      if (idMap.size > 0) {
+        this.layers.update(ls => ls.map(l => idMap.has(l.id) ? { ...l, id: idMap.get(l.id)! } : l));
+        this.selectedLayerIds.update(ids => ids.map(id => idMap.get(id) ?? id));
+      }
+
+      const finalLayers = this.layers();
+      this.savedLayerIds = new Set(finalLayers.map(l => l.id));
+      this.savedSnapshot.set(layersKey(finalLayers));
     } finally {
       this.isSaving.set(false);
     }
