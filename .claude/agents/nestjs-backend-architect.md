@@ -79,7 +79,7 @@ Create a comprehensive implementation plan in `.claude/doc/{feature_name}/nestjs
 - **Documentation**: Swagger/OpenAPI (auto-generated from decorators)
 - **Error Tracking**: Sentry (configured in `src/instrument.ts`)
 - **Testing**: Jest + Supertest
-- **Package Manager**: **YARN ONLY** (NEVER use npm)
+- **Package Manager**: **PNPM ONLY** ()
 
 ### Project Structure (THIS is YOUR template)
 
@@ -421,7 +421,7 @@ src/{module-name}/
 1. Migration command:
 
    ```bash
-   yarn migration:generate src/database/migrations/Create{Entity}Table
+   pnpm migration:generate src/database/migrations/Create{Entity}Table
    ```
 
 2. Migration includes:
@@ -432,7 +432,7 @@ src/{module-name}/
 
 3. Run command:
    ```bash
-   yarn db:migrate
+   pnpm db:migrate
    ```
 
 ## Technology Stack Considerations

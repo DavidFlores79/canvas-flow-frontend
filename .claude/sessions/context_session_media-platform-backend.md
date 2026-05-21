@@ -9,7 +9,7 @@ Build a full-featured, scalable AI-powered media editing platform backend. This 
 - **Auth:** JWT (passport-jwt already installed) + CASL for authorization
 - **Storage/Media:** Cloudinary SDK
 - **AI Generation:** Leonardo AI REST API
-- **Package Manager:** yarn (NEVER npm)
+- **Package Manager:** pnpm 
 
 ## Multi-Tenant Data Hierarchy
 ```
@@ -27,7 +27,7 @@ Organization (Paisamex / Luxfree / ...)
 ### Why CASL (NOT nest-casl)
 - `nest-casl` is TypeORM-coupled and not maintained for NestJS 11
 - Custom `CaslModule` gives full control, no N+1 hydration issues
-- Only dependency to add: `yarn add @casl/ability`
+- Only dependency to add: `pnpm add @casl/ability`
 
 ### Role Definitions
 **Organization-level roles** (`OrgRole` enum):
@@ -90,7 +90,7 @@ export interface JwtPayload {
 - Seeds:
   - `src/database/seeds/` with standalone bootstrap pattern (NOT OnApplicationBootstrap)
   - Idempotent seeders for: Paisamex org + owner, Luxfree org + owner, default workspaces
-  - `yarn seed` and `yarn seed:dev` scripts in package.json
+  - `pnpm seed` and `pnpm seed:dev` scripts in package.json
 
 ### Phase 2: Canvas Resources
 - `projects` module:
@@ -218,14 +218,14 @@ src/
 - Unit tests for AbilityFactory (cover all role/action combinations)
 - Unit tests for TenantGuard and PoliciesGuard
 - Integration tests for auth flow with org context
-- Target: >80% coverage via `yarn test:cov`
+- Target: >80% coverage via `pnpm test:cov`
 
 ## Critical Bug to Fix (Pre-existing)
 `src/interceptors/HttpExceptionFilter.ts` implements `NestInterceptor` but is registered as `APP_FILTER`. Guard-level exceptions (ForbiddenException, UnauthorizedException) will bypass the error map. Fix: register as `APP_INTERCEPTOR` instead of `APP_FILTER`.
 
 ## Dependency to Add
 ```bash
-yarn add @casl/ability
+pnpm add @casl/ability
 ```
 
 ## Phase 0 Status: COMPLETED
@@ -234,7 +234,7 @@ yarn add @casl/ability
 
 **Branch:** `feat/media-platform-backend-core`
 
-**Build status:** Passes (`yarn build` clean)
+**Build status:** Passes (`pnpm build` clean)
 **Test status:** 125 tests passing across 9 test suites (all pass)
 
 #### Files Created:
@@ -279,7 +279,7 @@ yarn add @casl/ability
 
 **Branch:** `feat/media-platform-backend-core`
 
-**Build status:** Passes (`yarn build` clean)
+**Build status:** Passes (`pnpm build` clean)
 **Test status:** 185 tests passing across 13 test suites (all pass — 60 new tests added)
 
 #### Files Created:
@@ -326,7 +326,7 @@ yarn add @casl/ability
 
 ## Phase 2 Status: COMPLETED
 
-**Build status:** Passes (`yarn build` clean)
+**Build status:** Passes (`pnpm build` clean)
 **Test status:** 262 tests passing across 22 suites
 
 ### Files Created
@@ -341,7 +341,7 @@ yarn add @casl/ability
 
 ## Phase 3 Status: COMPLETED
 
-**Build status:** Passes (`yarn build` clean)
+**Build status:** Passes (`pnpm build` clean)
 **Test status:** 262 tests passing across 22 suites (14 new tests)
 
 ### Files Created

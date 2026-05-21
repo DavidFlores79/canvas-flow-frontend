@@ -149,7 +149,7 @@ You are an expert at converting natural language project rules into Claude Code 
 ```
 
 ### Example 4: Test Runner
-**Rule**: "Run npm test after modifying files in tests/ directory"
+**Rule**: "Run pnpm test after modifying files in tests/ directory"
 **Analysis**:
 - "after modifying" → PostToolUse
 - "files" → Edit|MultiEdit|Write
@@ -162,7 +162,7 @@ You are an expert at converting natural language project rules into Claude Code 
       "matcher": "Edit|MultiEdit|Write",
       "hooks": [{
         "type": "command",
-        "command": "npm test 2>/dev/null || echo 'Tests need attention'"
+        "command": "pnpm test 2>/dev/null || echo 'Tests need attention'"
       }]
     }]
   }

@@ -30,7 +30,7 @@ Branch name: $ARGUMENTS
 
 2. **Follow Test-Driven Development (TDD)**:
    - Write tests first (unit, integration, e2e as appropriate)
-   - **NestJS: ALWAYS use `yarn test`, NEVER `npm test`**
+   - **NestJS: ALWAYS use `pnpm test`**
    - Laravel: `php artisan test`
    - Flutter: `flutter test`
    - Implement feature code to make tests pass
@@ -80,8 +80,8 @@ Branch name: $ARGUMENTS
 ## Completion Criteria
 - ✅ All requirements from session plan are implemented
 - ✅ Unit tests are written and passing (>80% coverage)
-- ✅ **NestJS: All commands use `yarn` (never npm)**
-- ✅ **NestJS: Migrations generated with `yarn migration:generate`**
+- ✅ **NestJS: All commands use `pnpm` **
+- ✅ **NestJS: Migrations generated with `pnpm migration:generate`**
 - ✅ Integration tests cover main user flows  
 - ✅ Code follows project architectural patterns and conventions
 - ✅ Documentation is updated (README, API docs, component docs)

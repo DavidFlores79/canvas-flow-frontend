@@ -6,7 +6,7 @@
       "Bash(find:*)",
       "Bash(mv:*)",
       "Bash(grep:*)",
-      "Bash(npm:*)",
+      "Bash(pnpm:*)",
       "Bash(ls:*)",
       "Bash(cp:*)",
       "Write",

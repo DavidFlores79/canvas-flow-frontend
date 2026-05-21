@@ -75,7 +75,7 @@ For each feedback item:
 2. **Add Tests**: Ensure >80% test coverage
    ```bash
    # Run tests to verify changes
-   npm test # or php artisan test, flutter test
+   pnpm test # or php artisan test, flutter test
    ```
 
 3. **Update Documentation**: 
@@ -86,9 +86,9 @@ For each feedback item:
 ### Quality Assurance
 1. **Run Full Test Suite**:
    ```bash
-   npm run test:coverage # Check coverage
-   npm run lint # Fix linting issues
-   npm run build # Ensure build passes
+   pnpm test:coverage # Check coverage
+   pnpm lint # Fix linting issues
+   pnpm build # Ensure build passes
    ```
 
 2. **Manual Testing**: Test the specific functionality mentioned in feedback

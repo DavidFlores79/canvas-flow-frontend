@@ -96,7 +96,7 @@ run-tests coverage
 
 **What it does:**
 - **Auto-detects project technology:**
-  - **NestJS:** `yarn test`, `yarn test:cov` (Jest + Supertest) - **ALWAYS use yarn**
+  - **NestJS:** `pnpm test`, `pnpm test:cov` (Jest + Supertest) - **ALWAYS use pnpm**
   - **Laravel:** `php artisan test --coverage` (PHPUnit + Pest)
   - **Angular:** `ng test --code-coverage` (Jasmine + Karma + Cypress)
   - **Flutter:** `flutter test --coverage` (flutter_test + mockito)
@@ -189,9 +189,9 @@ git checkout -b feat/feature-name develop
 # 3. Start development
 start-working-on-branch-new feat/feature-name
 
-# 4. Run tests (ALWAYS use yarn)
-yarn test
-yarn test:cov
+# 4. Run tests (ALWAYS use pnpm)
+pnpm test
+pnpm test:cov
 
 # 5. Create PR (manual)
 git push origin feat/feature-name
@@ -202,11 +202,11 @@ update-feedback <pr-number>
 ```
 
 ### Package Management:
-**CRITICAL: Always use `yarn`, NEVER use `npm`**
+**CRITICAL: Always use `pnpm`**
 ```bash
-yarn install           # Install dependencies
-yarn test              # Run tests
-yarn test:cov          # Run tests with coverage
+pnpm install           # Install dependencies
+pnpm test              # Run tests
+pnpm test:cov          # Run tests with coverage
 ```
 
 ### Testing Commands:
@@ -240,7 +240,7 @@ Each workflow completion ensures:
 - ✅ All CI/CD checks passing
 - ✅ 1 reviewer approval obtained
 - ✅ Code merged to `develop` branch
-- ✅ All commands use `yarn` (never npm)
+- ✅ All commands use `pnpm`
 
 ---
 
@@ -257,9 +257,9 @@ git checkout -b feat/product-catalog develop
 # 3. Start development (uses session plan and agents)
 start-working-on-branch-new feat/product-catalog
 
-# 5. Test thoroughly (ALWAYS use yarn)
-yarn test
-yarn test:cov
+# 5. Test thoroughly (ALWAYS use pnpm)
+pnpm test
+pnpm test:cov
 
 # 8. Push and create PR
 git push origin feat/product-catalog
@@ -270,7 +270,7 @@ update-feedback <pr-number>
 
 # This workflow ensures:
 # - ✅ No GitHub issues created
-# - ✅ Always using yarn (never npm)
+# - ✅ Always using pnpm 
 # - ✅ PRs target develop branch
 # - ✅ Professional-grade feature ready for production! 🎉
 ```

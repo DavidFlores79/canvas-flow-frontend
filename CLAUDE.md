@@ -5,12 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm start          # dev server at http://localhost:4200
-npm run build      # production build → dist/
-npm test           # unit tests (Jasmine + Karma)
+pnpm start         # dev server at http://localhost:4200
+pnpm build         # production build → dist/
+pnpm test          # unit tests (Jasmine + Karma)
 ```
 
-> **Package manager:** the project uses `yarn` as the canonical package manager (see `yarn.lock`). Use `yarn` for installing dependencies and running scripts, not `npm`.
+> **Package manager:** the project uses `pnpm` as the canonical package manager. Use `pnpm` for installing dependencies and running scripts.
 
 ## Architecture
 
