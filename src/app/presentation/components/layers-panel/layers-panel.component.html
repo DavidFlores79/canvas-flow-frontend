@@ -8,9 +8,9 @@
         <li
           draggable="true"
           class="flex items-center justify-between px-2 py-1 rounded cursor-pointer text-sm transition-colors"
-          [class.bg-blue-50]="editorStore.selectedLayerIds().includes(layer.id)"
+          [class.bg-brand-50]="editorStore.selectedLayerIds().includes(layer.id)"
           [class.border-t-2]="dragOverIndex() === i"
-          [class.border-blue-400]="dragOverIndex() === i"
+          [class.border-brand-400]="dragOverIndex() === i"
           [class.opacity-40]="dragOverIndex() !== null && dragOverIndex() !== i"
           (click)="selectLayer(layer.id)"
           (dragstart)="onDragStart($event, i)"

@@ -7,7 +7,7 @@
       <input
         type="file"
         accept="image/*"
-        class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+        class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer"
         (change)="uploadFile($event)"
       />
     </label>
@@ -25,7 +25,7 @@
 
   <div class="grid grid-cols-2 gap-2">
     @for (asset of assets(); track asset.id) {
-      <div class="relative group aspect-square rounded overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors">
+      <div class="relative group aspect-square rounded overflow-hidden border border-gray-200 hover:border-brand-400 transition-colors">
         <button
           class="w-full h-full"
           [disabled]="!editorStore.canEdit()"

@@ -45,7 +45,7 @@
         </div>
       } @else {
         <button
-          class="w-full text-xs bg-blue-50 text-blue-700 rounded px-2 py-1 hover:bg-blue-100"
+          class="w-full text-xs bg-brand-50 text-brand-700 rounded px-2 py-1 hover:bg-brand-100"
           (click)="applyCanvasSize()"
         >Apply</button>
       }
@@ -115,19 +115,19 @@
           <div class="flex gap-1">
             <button
               class="flex-1 py-1 rounded text-sm font-bold border"
-              [class]="(layer.properties.fontWeight ?? 'normal') === 'bold' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+              [class]="(layer.properties.fontWeight ?? 'normal') === 'bold' ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
               (click)="onFontWeightToggle(layer.id, layer.properties.fontWeight ?? 'normal')"
               title="Bold"
             >B</button>
             <button
               class="flex-1 py-1 rounded text-sm italic border"
-              [class]="(layer.properties.fontStyle ?? 'normal') === 'italic' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+              [class]="(layer.properties.fontStyle ?? 'normal') === 'italic' ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
               (click)="onFontStyleToggle(layer.id, layer.properties.fontStyle ?? 'normal')"
               title="Italic"
             >I</button>
             <button
               class="flex-1 py-1 rounded text-sm underline border"
-              [class]="(layer.properties.underline ?? false) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+              [class]="(layer.properties.underline ?? false) ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
               (click)="onUnderlineToggle(layer.id, layer.properties.underline ?? false)"
               title="Underline"
             >U</button>
@@ -140,7 +140,7 @@
             @for (align of TEXT_ALIGNS; track align) {
               <button
                 class="flex-1 py-1 rounded text-xs border"
-                [class]="(layer.properties.textAlign ?? 'left') === align ? 'bg-blue-100 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600'"
+                [class]="(layer.properties.textAlign ?? 'left') === align ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
                 (click)="onTextAlignChange(align, layer.id)"
               >{{ align }}</button>
             }

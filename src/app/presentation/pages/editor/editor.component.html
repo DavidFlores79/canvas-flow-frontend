@@ -29,7 +29,7 @@
         <!-- New project -->
         @if (showNewProjectInput()) {
           <input
-            class="border border-gray-300 rounded-md px-2 py-1 text-sm w-36 focus:outline-none focus:ring-1 focus:ring-blue-400"
+            class="border border-gray-300 rounded-md px-2 py-1 text-sm w-36 focus:outline-none focus:ring-1 focus:ring-brand-400"
             placeholder="Project name"
             [ngModel]="newProjectName()"
             (ngModelChange)="newProjectName.set($event)"
@@ -38,7 +38,7 @@
             autofocus
           />
           <button
-            class="text-xs px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            class="text-xs px-2 py-1 bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50"
             [disabled]="isCreatingProject() || !newProjectName().trim()"
             (click)="createProject()"
           >{{ isCreatingProject() ? '...' : 'Add' }}</button>
@@ -86,8 +86,8 @@
           @for (tab of tabs; track tab.key) {
             <button
               class="flex-1 text-xs py-2 transition-colors"
-              [class.bg-blue-50]="activeTab() === tab.key"
-              [class.text-blue-700]="activeTab() === tab.key"
+              [class.bg-brand-50]="activeTab() === tab.key"
+              [class.text-brand-700]="activeTab() === tab.key"
               [class.text-gray-500]="activeTab() !== tab.key"
               (click)="setTab(tab.key)"
             >{{ tab.label }}</button>

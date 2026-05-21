@@ -32,7 +32,7 @@
         <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
           <input
             type="checkbox"
-            class="rounded border-gray-300 text-blue-600"
+            class="rounded border-gray-300 text-brand-600"
             [checked]="removeBackground()"
             (change)="removeBackground.set(!removeBackground())"
           />
@@ -51,7 +51,7 @@
             <div class="flex justify-between text-xs text-gray-500 mb-1">
               <span>Brightness</span><span>{{ brightness() }}</span>
             </div>
-            <input type="range" min="-100" max="100" step="1" class="w-full accent-blue-600"
+            <input type="range" min="-100" max="100" step="1" class="w-full accent-brand-600"
               [value]="brightness()"
               (input)="onRangeInput(brightness.set.bind(brightness), $event)"
             />
@@ -61,7 +61,7 @@
             <div class="flex justify-between text-xs text-gray-500 mb-1">
               <span>Contrast</span><span>{{ contrast() }}</span>
             </div>
-            <input type="range" min="-100" max="100" step="1" class="w-full accent-blue-600"
+            <input type="range" min="-100" max="100" step="1" class="w-full accent-brand-600"
               [value]="contrast()"
               (input)="onRangeInput(contrast.set.bind(contrast), $event)"
             />
@@ -71,7 +71,7 @@
             <div class="flex justify-between text-xs text-gray-500 mb-1">
               <span>Blur</span><span>{{ blurUi() }}</span>
             </div>
-            <input type="range" min="0" max="100" step="1" class="w-full accent-blue-600"
+            <input type="range" min="0" max="100" step="1" class="w-full accent-brand-600"
               [value]="blurUi()"
               (input)="onRangeInput(blurUi.set.bind(blurUi), $event)"
             />
@@ -80,7 +80,7 @@
           <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
             <input
               type="checkbox"
-              class="rounded border-gray-300 text-blue-600"
+              class="rounded border-gray-300 text-brand-600"
               [checked]="grayscale()"
               (change)="grayscale.set(!grayscale())"
             />
@@ -145,7 +145,7 @@
       <!-- Actions -->
       <div class="flex gap-2">
         <button
-          class="flex-1 flex items-center justify-center gap-1 text-xs bg-blue-600 text-white rounded px-2 py-1.5 hover:bg-blue-700 disabled:opacity-50"
+          class="flex-1 flex items-center justify-center gap-1 text-xs bg-brand-600 text-white rounded px-2 py-1.5 hover:bg-brand-700 disabled:opacity-50"
           [disabled]="isApplying()"
           (click)="apply()"
         >

@@ -2,8 +2,8 @@
   @for (tool of tools; track tool.key) {
     <button
       class="px-3 py-1 text-sm rounded-md transition-colors"
-      [class.bg-blue-100]="editorStore.activeTool() === tool.key"
-      [class.text-blue-700]="editorStore.activeTool() === tool.key"
+      [class.bg-brand-100]="editorStore.activeTool() === tool.key"
+      [class.text-brand-700]="editorStore.activeTool() === tool.key"
       [class.bg-gray-100]="editorStore.activeTool() !== tool.key"
       [class.text-gray-700]="editorStore.activeTool() !== tool.key"
       [disabled]="!editorStore.canEdit()"
@@ -16,8 +16,8 @@
   <div class="relative">
     <button
       class="flex items-center gap-1 px-3 py-1 text-sm rounded-md transition-colors"
-      [class.bg-blue-100]="editorStore.activeTool() === 'shape'"
-      [class.text-blue-700]="editorStore.activeTool() === 'shape'"
+      [class.bg-brand-100]="editorStore.activeTool() === 'shape'"
+      [class.text-brand-700]="editorStore.activeTool() === 'shape'"
       [class.bg-gray-100]="editorStore.activeTool() !== 'shape'"
       [class.text-gray-700]="editorStore.activeTool() !== 'shape'"
       [disabled]="!editorStore.canEdit()"
@@ -36,7 +36,7 @@
         @for (option of shapeOptions; track option.kind) {
           <button
             class="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50"
-            [class.text-blue-700]="editorStore.activeShapeKind() === option.kind"
+            [class.text-brand-700]="editorStore.activeShapeKind() === option.kind"
             [class.font-medium]="editorStore.activeShapeKind() === option.kind"
             (click)="selectShape(option.kind)"
           >
@@ -49,7 +49,7 @@
   </div>
 
   <button
-    class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 text-sm rounded-md hover:from-purple-700 hover:to-indigo-700 shadow-sm transition-all disabled:opacity-40 flex items-center gap-1.5"
+    class="bg-gradient-to-r from-brand-500 to-brand-700 text-white px-3 py-1 text-sm rounded-md hover:from-brand-600 hover:to-brand-800 shadow-sm transition-all disabled:opacity-40 flex items-center gap-1.5"
     [disabled]="!editorStore.canEdit()"
     (click)="aiGenerateClicked.emit()"
   ><span>✦</span><span>AI</span></button>
@@ -90,9 +90,9 @@
     />
     <button
       class="px-2 py-1 rounded border text-[11px]"
-      [class.border-blue-300]="editorStore.canvasBackground() === null"
-      [class.text-blue-700]="editorStore.canvasBackground() === null"
-      [class.bg-blue-50]="editorStore.canvasBackground() === null"
+      [class.border-brand-300]="editorStore.canvasBackground() === null"
+      [class.text-brand-700]="editorStore.canvasBackground() === null"
+      [class.bg-brand-50]="editorStore.canvasBackground() === null"
       [class.border-gray-200]="editorStore.canvasBackground() !== null"
       [class.text-gray-600]="editorStore.canvasBackground() !== null"
       (click)="setTransparentBackground()"
@@ -103,8 +103,8 @@
   <div class="w-px h-5 bg-gray-200 mx-2"></div>
 
   <button
-    class="px-3 py-1 text-sm rounded-md hover:bg-blue-700 disabled:opacity-40 text-white transition-colors"
-    [class.bg-blue-600]="!editorStore.isDirty()"
+    class="px-3 py-1 text-sm rounded-md hover:bg-brand-700 disabled:opacity-40 text-white transition-colors"
+    [class.bg-brand-600]="!editorStore.isDirty()"
     [class.bg-orange-500]="editorStore.isDirty()"
     [disabled]="!editorStore.canEdit() || editorStore.isSaving()"
     (click)="save()"

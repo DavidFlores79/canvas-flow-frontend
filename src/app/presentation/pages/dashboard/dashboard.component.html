@@ -1,7 +1,10 @@
 <div class="min-h-screen bg-gray-50">
   <!-- Header -->
   <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-    <h1 class="text-lg font-bold text-gray-900">Canvas Flow</h1>
+    <div class="flex items-center gap-2">
+      <img src="logo.png" alt="Canvas Flow" class="h-8 w-8 object-contain" />
+      <span class="text-lg font-bold text-gray-900">Canvas Flow</span>
+    </div>
     <div class="flex items-center gap-4">
       <app-org-switcher />
       <span class="text-sm text-gray-600">{{ authStore.currentUser()?.email }}</span>
