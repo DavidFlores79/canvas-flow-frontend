@@ -119,7 +119,7 @@ async upload(file: Express.Multer.File, dto: UploadAssetPayloadDto, orgId: strin
 ```
 
 ### Gotchas
-- `yarn add -D @types/multer` required for `Express.Multer.File` type
+- `pnpm add -D @types/multer` required for `Express.Multer.File` type
 - Cloudinary folder: `canvas-flow/{orgId}` — scoped per tenant
 - Memory storage (default) is correct since `CloudinaryService.uploadFile` reads `file.buffer`
 - 10 MB file size limit via `FileInterceptor` options
@@ -357,13 +357,13 @@ async generate(dto: AiGeneratePayloadDto, orgId: string): Promise<Asset[]> {
 - All service methods: unit tests with mocked CloudinaryService, LeonardoService, AssetService
 - All controller actions: unit tests with guards overridden
 - Target: maintain >80% statement coverage
-- `yarn test:cov` before PR
+- `pnpm test:cov` before PR
 
 ---
 
 ## Dependencies to install
 ```bash
-yarn add -D @types/multer
+pnpm add -D @types/multer
 ```
 
 ---

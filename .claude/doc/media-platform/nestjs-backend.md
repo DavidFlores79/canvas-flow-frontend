@@ -239,7 +239,7 @@ src/database/seeds/
 **Package.json scripts to add:**
 ```json
 "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
-"seed:dev": "DEPLOY_ENV=local yarn seed"
+"seed:dev": "DEPLOY_ENV=local pnpm seed"
 ```
 
 All seeders must be **idempotent** (check before insert).
@@ -304,7 +304,7 @@ Use existing custom errors from `src/shared/error/`:
 - **Controller tests**: Mock Services. Test CASL policy enforcement.
 - **AbilityFactory tests**: Cover all role × action × resource combinations
 - **TenantGuard tests**: Test missing membership throws ForbiddenException
-- **Target coverage**: >80% via `yarn test:cov`
+- **Target coverage**: >80% via `pnpm test:cov`
 
 ---
 
@@ -317,5 +317,5 @@ Use existing custom errors from `src/shared/error/`:
 
 ## 10. New Dependency
 ```bash
-yarn add @casl/ability
+pnpm add @casl/ability
 ```

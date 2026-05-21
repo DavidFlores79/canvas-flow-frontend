@@ -74,5 +74,5 @@ Evaluate the plan and iterate over it until we have the final plan with the comp
 - **NO GitHub issues** - branches are created directly
 - Consider the specific technology stack when selecting agents
 - Plan must include proper testing and documentation strategies
-- **NestJS projects: ALWAYS use `yarn`, NEVER `npm`**
-- **NestJS migrations: Use `yarn migration:generate` (package.json script)**
+- **NestJS projects: ALWAYS use `pnpm`**
+- **NestJS migrations: Use `pnpm migration:generate` (package.json script)**

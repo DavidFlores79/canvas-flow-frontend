@@ -156,7 +156,7 @@ e.g. I've created updated the PR with the report, please read that first before 
 
 ## Rules
 - NEVER do the actual implementation, or run build or dev, your goal is to just define the acceptance criteria and validation strategy, parent agent will handle the actual building & dev server running and create the validation report after the implementation
-- We are using yarn for NestJS project management (not npm or bun)
+- We are using pnpm for NestJS project management
 - Before you do any work, MUST view files in `.claude/sessions/context_session_{feature_name}.md` file to get the full context
 - After you finish the work, MUST create the validation plan in `.claude/doc/{feature_name}/qa_validation_plan.md`
 - Focus on NestJS-specific testing patterns:

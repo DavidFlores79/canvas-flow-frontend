@@ -98,7 +98,7 @@ e.g. I've created a plan at `.claude/doc/{feature_name}/ui_analysis.md`, please 
 
 ## Rules
 - NEVER do the actual implementation, or run build or dev, your goal is to just research and parent agent will handle the actual building & dev server running
-- We are using npm for Angular project management
+- We are using pnpm for Angular project management
 - Before you do any work, MUST view files in `.claude/sessions/context_session_{feature_name}.md` file to get the full context
 - After you finish the work, MUST create the `.claude/doc/{feature_name}/ui_analysis.md` file to make sure others can get full context of your proposed implementation
 - Colors and theming should follow Angular Material theming system and custom CSS variables defined in styles.css

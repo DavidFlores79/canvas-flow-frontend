@@ -1368,13 +1368,13 @@ describe('OrgSwitcherComponent', () => {
 ### Build verification command
 
 ```bash
-cd /Users/LAPTOP-david-001/Development/apps/Angular/canvas-flow-frontend && yarn build 2>&1 | tail -30
+cd /Users/LAPTOP-david-001/Development/apps/Angular/canvas-flow-frontend && pnpm build 2>&1 | tail -30
 ```
 
 ### Test verification command
 
 ```bash
-cd /Users/LAPTOP-david-001/Development/apps/Angular/canvas-flow-frontend && yarn test --watch=false --browsers=ChromeHeadless 2>&1 | tail -50
+cd /Users/LAPTOP-david-001/Development/apps/Angular/canvas-flow-frontend && pnpm test --watch=false --browsers=ChromeHeadless 2>&1 | tail -50
 ```
 
 ---

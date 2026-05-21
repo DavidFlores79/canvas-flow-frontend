@@ -27,20 +27,20 @@ Automatically detect the technology being used:
 
 ### 🎯 **NestJS Backend Tests**
 
-**CRITICAL: ALWAYS use `yarn`, NEVER use `npm`**
+**CRITICAL: ALWAYS use `pnpm`**
 
 ```bash
 # Unit Tests
-yarn test
+pnpm test
 
 # Integration Tests
-yarn test:e2e
+pnpm test:e2e
 
 # Coverage Report
-yarn test:cov
+pnpm test:cov
 
 # Watch Mode (for development)
-yarn test:watch
+pnpm test:watch
 ```
 
 **Expected Structure:**
