@@ -5,6 +5,12 @@ import { AiApiService } from '../../../data/services/ai-api.service';
 import { EditorStore } from '../../../application/stores/editor.store';
 import { Asset } from '../../../domain/models/asset.model';
 import { Layer } from '../../../domain/models/layer.model';
+import {
+  AI_STYLES,
+  AI_SIZE_PRESETS,
+  AiStyleId,
+  AiSizePresetId,
+} from '../../../domain/constants/ai-styles';
 
 @Component({
   selector: 'app-ai-modal',
@@ -23,10 +29,14 @@ export class AiModalComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly generatedAssets = signal<Asset[]>([]);
 
+  protected readonly selectedStyle = signal<AiStyleId>('photorealistic');
+  protected readonly selectedSize = signal<AiSizePresetId>('square');
+
+  protected readonly styles = AI_STYLES;
+  protected readonly sizePresets = AI_SIZE_PRESETS;
+
   protected readonly form = this.fb.group({
     prompt: ['', [Validators.required, Validators.minLength(3)]],
-    modelId: ['ac614f96-1082-45bf-be9d-757f2d31c174', Validators.required],
-    numImages: [1],
   });
 
   async generate(): Promise<void> {
@@ -34,16 +44,22 @@ export class AiModalComponent {
     const project = this.editorStore.activeProject();
     if (!project) return;
 
-    const { prompt, modelId, numImages } = this.form.getRawValue();
+    const { prompt } = this.form.getRawValue();
+    const style = AI_STYLES.find((s) => s.id === this.selectedStyle())!;
+    const size = AI_SIZE_PRESETS.find((s) => s.id === this.selectedSize())!;
+    const finalPrompt = (style.promptPrefix ?? '') + prompt!;
+
     this.isGenerating.set(true);
     this.error.set(null);
     try {
       const result = await firstValueFrom(
         this.aiApi.generate({
-          prompt: prompt!,
-          modelId: modelId!,
+          prompt: finalPrompt,
+          modelId: style.modelId,
+          presetStyle: style.presetStyle,
           workspaceId: project.workspaceId,
-          numImages: numImages ?? 1,
+          width: size.width,
+          height: size.height,
         }),
       );
       this.generatedAssets.set(result.assets);

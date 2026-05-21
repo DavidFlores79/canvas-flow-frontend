@@ -24,6 +24,7 @@ export interface AiGeneratePayload {
   prompt: string;
   modelId: string;
   workspaceId: string;
+  presetStyle?: string;
   width?: number;
   height?: number;
   numImages?: number;
