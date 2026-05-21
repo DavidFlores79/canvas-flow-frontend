@@ -75,6 +75,29 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       this.canvas.backgroundColor = background || ''; // Ensure no null values
       this.canvas.requestRenderAll();
     });
+
+    effect(() => {
+      const ids = this.editorStore.selectedLayerIds();
+      if (!this.canvas || this._isRendering) return;
+      const objects = this.canvas.getObjects();
+      const toSelect = objects.filter(
+        (obj) => ids.includes((obj as fabric.FabricObject & { layerId?: string }).layerId ?? '')
+      );
+      this._isRendering = true;
+      try {
+        if (toSelect.length === 0) {
+          this.canvas.discardActiveObject();
+        } else if (toSelect.length === 1) {
+          this.canvas.setActiveObject(toSelect[0]);
+        } else {
+          const selection = new fabric.ActiveSelection(toSelect, { canvas: this.canvas });
+          this.canvas.setActiveObject(selection);
+        }
+        this.canvas.requestRenderAll();
+      } finally {
+        this._isRendering = false;
+      }
+    });
   }
 
   ngAfterViewInit(): void {
