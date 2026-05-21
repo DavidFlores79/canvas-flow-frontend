@@ -35,7 +35,7 @@ export const AI_STYLES: AiStyle[] = [
     id: 'anime',
     label: 'Anime / Manga',
     description: 'Japanese animation style',
-    modelId: 'e71a1c2f-4f80-4800-934f-2c68979d1cc6',
+    modelId: 'e71a1c2f-4f80-4800-934f-2c68979d8cc8',
   },
   {
     id: 'comic',
