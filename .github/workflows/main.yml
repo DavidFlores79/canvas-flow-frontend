@@ -1,0 +1,62 @@
+name: Deploy Angular App to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+
+      # 3️⃣ Install pnpm and dependencies
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 4️⃣ Build Angular application
+      - name: Build Angular application
+        run: pnpm run ng build --configuration=production
+        # Verifica que el output coincida con "source" más abajo
+
+      # 5️⃣ Deploy usando SCP
+      - name: Deploy to Hostinger via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}       # ej. 194.195.84.168
+          username: ${{ secrets.HOSTINGER_USER }}   # ej. u364043120
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}     # clave privada sin passphrase
+          port: ${{ secrets.HOSTINGER_PORT }}       # ej. 65002
+          source: "dist/canvas-flow-frontend/browser/"
+          target: "domains/enlacetecnologias.mx/public_html/canvasflow/"
+          strip_components: 3
+          recursive: true
+
+      # 6️⃣ Health-check
+      - name: Wait for health check and perform it
+        run: |
+          echo "Esperando 10 segundos para que el servidor se estabilice..."
+          sleep 10
+
+          echo "Realizando Health Check en https://canvasflow.enlacetecnologias.mx..."
+          if curl -fsL -o /dev/null --max-time 15 https://canvasflow.enlacetecnologias.mx; then
+            echo "✔️ Health Check exitoso: La aplicación está funcionando correctamente."
+          else
+            echo "❌ Error en Health Check: la aplicación no respondió correctamente."
+            exit 1
+          fi
