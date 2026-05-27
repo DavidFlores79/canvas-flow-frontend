@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://YOURDOMAIN/api/v1',
-  apiBaseUrl: 'https://YOURDOMAIN/api',
+  apiUrl: 'https://canvasflow-api.enlacetecnologias.mx/v1',
+  apiBaseUrl: 'https://canvasflow-api.enlacetecnologias.mx',
 };
