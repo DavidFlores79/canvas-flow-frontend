@@ -1,12 +1,13 @@
 @if (authStore.hasMultipleOrgs()) {
   <div class="relative">
     <select
-      class="appearance-none bg-white border border-gray-200 rounded-md px-3 py-1 text-sm pr-8 cursor-pointer"
+      class="appearance-none bg-panel border border-panel-border rounded-md px-3 py-1 text-sm text-ink-secondary pr-8 cursor-pointer
+             focus:outline-none focus:ring-1 focus:ring-accent"
       [value]="authStore.activeOrganizationId()"
       (change)="onOrgChange($event)"
     >
       @for (org of authStore.organizations(); track org.id) {
-        <option [value]="org.id">{{ org.name }}</option>
+        <option [value]="org.id" class="bg-panel text-ink-primary">{{ org.name }}</option>
       }
     </select>
   </div>

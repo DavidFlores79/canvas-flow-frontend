@@ -1,12 +1,20 @@
 import { Component, EventEmitter, Output, computed, inject } from '@angular/core';
 import { EditorStore, ShapeKind, ToolType } from '../../../application/stores/editor.store';
+import {
+  LucideMousePointer2,
+  LucideType,
+  LucideSquare,
+  LucideChevronDown,
+  LucideSparkles,
+  LucideCrop,
+  LucideCopy,
+  LucideUndo2,
+  LucideRedo2,
+  LucideSave,
+  LucideDownload,
+} from '@lucide/angular';
 
 export type ExportFormat = 'png' | 'jpeg' | 'svg';
-
-interface Tool {
-  key: ToolType;
-  label: string;
-}
 
 interface ShapeOption {
   kind: ShapeKind;
@@ -17,6 +25,19 @@ interface ShapeOption {
 @Component({
   selector: 'app-toolbar',
   standalone: true,
+  imports: [
+    LucideMousePointer2,
+    LucideType,
+    LucideSquare,
+    LucideChevronDown,
+    LucideSparkles,
+    LucideCrop,
+    LucideCopy,
+    LucideUndo2,
+    LucideRedo2,
+    LucideSave,
+    LucideDownload,
+  ],
   templateUrl: './toolbar.component.html',
 })
 export class ToolbarComponent {
@@ -25,11 +46,6 @@ export class ToolbarComponent {
   @Output() readonly exportRequested = new EventEmitter<ExportFormat>();
   @Output() readonly canvasBackgroundChanged = new EventEmitter<string | null>();
   @Output() readonly aiGenerateClicked = new EventEmitter<void>();
-
-  protected readonly tools: Tool[] = [
-    { key: 'select', label: 'Select' },
-    { key: 'text', label: 'Text' },
-  ];
 
   protected readonly shapeOptions: ShapeOption[] = [
     { kind: 'rect',        label: 'Rectangle',  icon: '▭' },
@@ -71,17 +87,9 @@ export class ToolbarComponent {
     }
   }
 
-  undo(): void {
-    this.editorStore.undo();
-  }
-
-  redo(): void {
-    this.editorStore.redo();
-  }
-
-  save(): void {
-    void this.editorStore.saveLayers();
-  }
+  undo(): void { this.editorStore.undo(); }
+  redo(): void { this.editorStore.redo(); }
+  save(): void { void this.editorStore.saveLayers(); }
 
   export(format: ExportFormat): void {
     this.showExportMenu = false;

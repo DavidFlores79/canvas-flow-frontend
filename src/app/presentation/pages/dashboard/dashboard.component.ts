@@ -6,11 +6,12 @@ import { WorkspaceApiService } from '../../../data/services/workspace-api.servic
 import { Workspace } from '../../../domain/models/workspace.model';
 import { OrgSwitcherComponent } from '../../components/org-switcher/org-switcher.component';
 import { WorkspaceCardComponent } from '../../components/workspace-card/workspace-card.component';
+import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [OrgSwitcherComponent, WorkspaceCardComponent],
+  imports: [OrgSwitcherComponent, WorkspaceCardComponent, ThemeToggleComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {

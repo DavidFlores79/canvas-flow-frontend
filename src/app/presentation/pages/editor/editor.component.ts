@@ -25,6 +25,7 @@ import { LayersPanelComponent } from '../../components/layers-panel/layers-panel
 import { AssetsPanelComponent } from '../../components/assets-panel/assets-panel.component';
 import { AiModalComponent } from '../../components/ai-modal/ai-modal.component';
 import { OrgSwitcherComponent } from '../../components/org-switcher/org-switcher.component';
+import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 
 export type SideTab = 'layers' | 'assets';
 
@@ -45,6 +46,7 @@ interface TabItem {
     AssetsPanelComponent,
     AiModalComponent,
     OrgSwitcherComponent,
+    ThemeToggleComponent,
   ],
   templateUrl: './editor.component.html',
 })
