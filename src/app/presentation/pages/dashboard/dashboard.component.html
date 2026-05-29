@@ -1,15 +1,16 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-surface dark:bg-surface">
   <!-- Header -->
-  <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+  <header class="sticky top-0 z-10 bg-panel-header border-b border-panel-border px-6 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2">
       <img src="logo.png" alt="Canvas Flow" class="h-8 w-8 object-contain" />
-      <span class="text-lg font-bold text-gray-900">Canvas Flow</span>
+      <span class="text-lg font-bold text-ink-primary">Canvas Flow</span>
     </div>
     <div class="flex items-center gap-4">
+      <app-theme-toggle />
       <app-org-switcher />
-      <span class="text-sm text-gray-600">{{ authStore.currentUser()?.email }}</span>
+      <span class="text-sm text-ink-secondary">{{ authStore.currentUser()?.email }}</span>
       <button
-        class="text-sm text-gray-500 hover:text-gray-800"
+        class="text-sm text-ink-disabled hover:text-ink-primary transition-colors"
         (click)="signOut()"
       >Sign out</button>
     </div>
@@ -17,14 +18,14 @@
 
   <!-- Main content -->
   <main class="max-w-5xl mx-auto p-6">
-    <h2 class="text-xl font-semibold text-gray-800 mb-4">Workspaces</h2>
+    <h2 class="text-xl font-semibold text-ink-primary mb-4">Workspaces</h2>
 
     @if (isLoading()) {
-      <p class="text-gray-400">Loading workspaces…</p>
+      <p class="text-ink-disabled">Loading workspaces…</p>
     }
 
     @if (error()) {
-      <p class="text-red-500">{{ error() }}</p>
+      <p class="text-danger">{{ error() }}</p>
     }
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -34,7 +35,7 @@
     </div>
 
     @if (!isLoading() && workspaces().length === 0 && !error()) {
-      <p class="text-gray-400 mt-4">No workspaces found.</p>
+      <p class="text-ink-disabled mt-4">No workspaces found.</p>
     }
   </main>
 </div>

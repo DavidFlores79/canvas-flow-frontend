@@ -1,42 +1,47 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50">
-  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+<div
+  class="min-h-screen flex items-center justify-center bg-surface dark:bg-surface relative overflow-hidden"
+  style="background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.18) 0%, transparent 70%), #0f0e2a"
+>
+  <div class="bg-panel border border-panel-border rounded-2xl shadow-float w-full max-w-md mx-4 p-8 relative z-10">
     <div class="flex flex-col items-center mb-6">
       <img src="logo.png" alt="Canvas Flow" class="h-16 w-16 object-contain mb-3" />
-      <h1 class="text-2xl font-bold text-gray-900">Sign in to Canvas Flow</h1>
+      <h1 class="text-2xl font-bold text-ink-primary">Sign in to Canvas Flow</h1>
     </div>
 
     @if (authStore.error()) {
-      <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+      <div class="mb-4 p-3 bg-danger/10 border border-danger/30 rounded-lg text-danger text-sm">
         {{ authStore.error() }}
       </div>
     }
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="mb-4">
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <label for="email" class="block text-sm font-medium text-ink-secondary mb-1">Email</label>
         <input
           id="email"
           type="email"
           formControlName="email"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+          class="w-full px-3 py-2 bg-surface border border-panel-border rounded-lg text-ink-primary
+                 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
           placeholder="you@example.com"
         />
       </div>
 
       <div class="mb-6">
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <label for="password" class="block text-sm font-medium text-ink-secondary mb-1">Password</label>
         <div class="relative">
           <input
             id="password"
             [type]="showPassword ? 'text' : 'password'"
             formControlName="password"
-            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3 py-2 pr-10 bg-surface border border-panel-border rounded-lg text-ink-primary
+                   focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
             placeholder="••••••"
           />
           <button
             type="button"
             (click)="togglePassword()"
-            class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+            class="absolute inset-y-0 right-0 flex items-center px-3 text-ink-disabled hover:text-ink-secondary transition-colors"
             [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
           >
             @if (showPassword) {
@@ -56,7 +61,10 @@
       <button
         type="submit"
         [disabled]="form.invalid || authStore.isLoading()"
-        class="w-full bg-brand-600 text-white py-2 rounded-md hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="w-full py-2.5 rounded-lg font-medium text-white transition-all
+               bg-gradient-to-r from-accent to-[#312e81]
+               hover:from-accent-hover hover:to-[#3730a3]
+               disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-float"
       >
         @if (authStore.isLoading()) {
           Signing in…

@@ -1,26 +1,26 @@
-<div class="h-screen flex flex-col bg-gray-100 overflow-hidden">
+<div class="h-screen flex flex-col bg-surface dark:bg-surface overflow-hidden">
   <!-- App header -->
-  <header class="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+  <header class="flex-shrink-0 bg-panel-header border-b border-panel-border px-4 py-2 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <a href="/dashboard" class="text-sm text-gray-600 hover:text-gray-900">Back</a>
-      <span class="text-gray-300">|</span>
+      <a href="/dashboard" class="text-sm text-ink-secondary hover:text-ink-primary transition-colors">← Back</a>
+      <span class="text-panel-border">|</span>
 
       <!-- Project switcher -->
       <div class="flex items-center gap-2">
         <select
-          class="appearance-none bg-white border border-gray-200 rounded-md px-3 py-1 text-sm font-semibold text-gray-800 pr-8 cursor-pointer"
+          class="appearance-none bg-panel border border-panel-border rounded-md px-3 py-1 text-sm font-semibold text-ink-primary pr-8 cursor-pointer focus:outline-none focus:ring-1 focus:ring-accent"
           [ngModel]="editorStore.activeProject()?.id"
           (ngModelChange)="switchProjectById($event)"
         >
           @for (project of projects(); track project.id) {
-            <option [value]="project.id">{{ project.name }}</option>
+            <option [value]="project.id" class="bg-panel text-ink-primary">{{ project.name }}</option>
           }
         </select>
 
         <!-- Delete project (only when more than one exists) -->
         @if (projects().length > 1) {
           <button
-            class="w-6 h-6 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-500 text-xs"
+            class="w-6 h-6 flex items-center justify-center rounded hover:bg-danger/10 text-ink-disabled hover:text-danger text-xs transition-colors"
             title="Delete project"
             (click)="deleteProject(editorStore.activeProject()!.id)"
           >✕</button>
@@ -29,7 +29,7 @@
         <!-- New project -->
         @if (showNewProjectInput()) {
           <input
-            class="border border-gray-300 rounded-md px-2 py-1 text-sm w-36 focus:outline-none focus:ring-1 focus:ring-brand-400"
+            class="bg-surface border border-panel-border rounded-md px-2 py-1 text-sm w-36 text-ink-primary focus:outline-none focus:ring-1 focus:ring-accent"
             placeholder="Project name"
             [ngModel]="newProjectName()"
             (ngModelChange)="newProjectName.set($event)"
@@ -38,17 +38,17 @@
             autofocus
           />
           <button
-            class="text-xs px-2 py-1 bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:opacity-50"
+            class="text-xs px-2 py-1 bg-accent text-white rounded-md hover:bg-accent-hover disabled:opacity-50 transition-colors"
             [disabled]="isCreatingProject() || !newProjectName().trim()"
             (click)="createProject()"
-          >{{ isCreatingProject() ? '...' : 'Add' }}</button>
+          >{{ isCreatingProject() ? '…' : 'Add' }}</button>
           <button
-            class="text-xs px-2 py-1 text-gray-500 hover:text-gray-700"
+            class="text-xs px-2 py-1 text-ink-secondary hover:text-ink-primary transition-colors"
             (click)="showNewProjectInput.set(false)"
           >Cancel</button>
         } @else {
           <button
-            class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 text-lg leading-none"
+            class="w-6 h-6 flex items-center justify-center rounded hover:bg-panel-hover text-ink-disabled hover:text-ink-primary text-lg leading-none transition-colors"
             title="New project"
             (click)="showNewProjectInput.set(true)"
           >+</button>
@@ -56,8 +56,9 @@
       </div>
     </div>
     <div class="flex items-center gap-3">
+      <app-theme-toggle />
       <app-org-switcher />
-      <span class="text-xs text-gray-400">{{ authStore.orgRole() }}</span>
+      <span class="text-xs text-ink-disabled">{{ authStore.orgRole() }}</span>
     </div>
   </header>
 
@@ -71,24 +72,22 @@
 
   @if (isLoading()) {
     <div class="flex-1 flex items-center justify-center">
-      <p class="text-gray-400">Loading editor...</p>
+      <p class="text-ink-secondary">Loading editor…</p>
     </div>
   } @else if (error()) {
     <div class="flex-1 flex items-center justify-center">
-      <p class="text-red-500">{{ error() }}</p>
+      <p class="text-danger">{{ error() }}</p>
     </div>
   } @else {
     <!-- Editor workspace -->
     <div class="flex flex-1 overflow-hidden">
       <!-- Left sidebar: tabs -->
-      <aside class="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-y-auto">
-        <div class="flex border-b border-gray-200">
+      <aside class="w-56 flex-shrink-0 bg-panel border-r border-panel-border flex flex-col panel-scroll">
+        <div class="flex border-b border-panel-border flex-shrink-0">
           @for (tab of tabs; track tab.key) {
             <button
-              class="flex-1 text-xs py-2 transition-colors"
-              [class.bg-brand-50]="activeTab() === tab.key"
-              [class.text-brand-700]="activeTab() === tab.key"
-              [class.text-gray-500]="activeTab() !== tab.key"
+              class="sidebar-tab"
+              [class.sidebar-tab-active]="activeTab() === tab.key"
               (click)="setTab(tab.key)"
             >{{ tab.label }}</button>
           }
@@ -102,7 +101,7 @@
 
       <!-- Canvas column: scrollable viewport + fixed zoom bar -->
       <div class="flex-1 flex flex-col overflow-hidden">
-        <main #canvasViewport class="flex-1 overflow-auto p-8">
+        <main #canvasViewport class="flex-1 overflow-auto p-8 bg-canvas-desk dark:bg-zinc-800">
           <!-- Outer div has the scaled layout size so scroll container knows the true footprint -->
           <div
             class="relative mx-auto"
@@ -111,7 +110,7 @@
           >
             <!-- Inner div is native canvas size, scaled from top-left to fill the outer div -->
             <div
-              class="absolute top-0 left-0 origin-top-left"
+              class="absolute top-0 left-0 origin-top-left shadow-float"
               [style.transform]="'scale(' + zoom() + ')'"
               [style.width.px]="editorStore.activeProject()?.width ?? 1200"
               [style.height.px]="editorStore.activeProject()?.height ?? 800"
@@ -125,33 +124,33 @@
           </div>
         </main>
 
-        <!-- Zoom controls — outside scroll area so they stay fixed -->
-        <div class="flex-shrink-0 flex items-center justify-center py-2 bg-gray-100 border-t border-gray-200">
-          <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg shadow px-2 py-1">
+        <!-- Zoom controls -->
+        <div class="flex-shrink-0 flex items-center justify-center py-2 bg-surface border-t border-panel-border">
+          <div class="flex items-center gap-1 bg-panel-hover border border-panel-border rounded-lg shadow-panel px-2 py-1">
             <button
-              class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 disabled:opacity-40 text-base leading-none"
+              class="w-7 h-7 flex items-center justify-center rounded hover:bg-panel-active text-ink-secondary disabled:opacity-40 text-base leading-none transition-colors"
               [disabled]="zoom() <= 0.1"
               (click)="zoomOut()"
               title="Zoom out"
             >−</button>
 
             <button
-              class="w-14 text-xs text-center text-gray-700 hover:bg-gray-100 rounded py-1 tabular-nums"
+              class="w-14 text-xs text-center text-ink-secondary hover:bg-panel-active hover:text-ink-primary rounded py-1 tabular-nums transition-colors"
               (click)="zoomReset()"
               title="Reset to 100%"
             >{{ zoomPercent() }}%</button>
 
             <button
-              class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 disabled:opacity-40 text-base leading-none"
+              class="w-7 h-7 flex items-center justify-center rounded hover:bg-panel-active text-ink-secondary disabled:opacity-40 text-base leading-none transition-colors"
               [disabled]="zoom() >= 3"
               (click)="zoomIn()"
               title="Zoom in"
             >+</button>
 
-            <div class="w-px h-4 bg-gray-200 mx-1"></div>
+            <div class="w-px h-4 bg-panel-border mx-1"></div>
 
             <button
-              class="px-2 h-7 text-xs text-gray-600 rounded hover:bg-gray-100"
+              class="px-2 h-7 text-xs text-ink-secondary rounded hover:bg-panel-active hover:text-ink-primary transition-colors"
               (click)="fitPage()"
               title="Fit page"
             >Fit</button>
@@ -160,7 +159,7 @@
       </div>
 
       <!-- Right sidebar: inspector -->
-      <aside class="w-52 flex-shrink-0 bg-white border-l border-gray-200 overflow-y-auto">
+      <aside class="w-60 flex-shrink-0 bg-panel border-l border-panel-border panel-scroll">
         <app-inspector />
       </aside>
     </div>
