@@ -3,6 +3,44 @@
 @tailwind utilities;
 
 @layer base {
+  /* Light theme (default) — channels are space-separated RGB for <alpha-value> support */
+  :root {
+    --surface:        248 250 252;  /* slate-50  — page bg */
+    --surface-muted:  241 245 249;  /* slate-100 */
+    --panel:          255 255 255;  /* white     — sidebars */
+    --panel-hover:    248 250 252;  /* slate-50 */
+    --panel-active:   237 233 254;  /* violet-100 — selected */
+    --panel-border:   226 232 240;  /* slate-200 — dividers */
+    --panel-header:   255 255 255;  /* white */
+    --ink-primary:     15  23  42;  /* slate-900 — text */
+    --ink-secondary:  100 116 139;  /* slate-500 — muted text */
+    --ink-disabled:   148 163 184;  /* slate-400 — placeholders */
+    --accent:         124  58 237;  /* violet-600 */
+    --accent-hover:   109  40 217;  /* violet-700 */
+    --accent-muted:   237 233 254;  /* violet-100 — active bg */
+    --accent-light:   124  58 237;  /* violet-600 — text on accent bg */
+    --canvas-desk:    226 232 240;  /* slate-200 — workspace bg */
+  }
+
+  /* Dark theme — pulled from the logo gradient */
+  .dark {
+    --surface:         15  14  42;  /* #0f0e2a near-black indigo */
+    --surface-muted:   26  24  71;  /* #1a1847 */
+    --panel:           30  27  75;  /* #1e1b4b indigo-950 */
+    --panel-hover:     45  42 110;  /* #2d2a6e */
+    --panel-active:    55  48 163;  /* #3730a3 indigo-700 */
+    --panel-border:    49  46 129;  /* #312e81 indigo-900 */
+    --panel-header:    19  17  58;  /* #13113a deepest header */
+    --ink-primary:    237 233 254;  /* #ede9fe violet-100 */
+    --ink-secondary:  165 180 252;  /* #a5b4fc indigo-300 */
+    --ink-disabled:    99 102 241;  /* #6366f1 indigo-500 */
+    --accent:         139  92 246;  /* #8b5cf6 violet-500 */
+    --accent-hover:   124  58 237;  /* #7c3aed violet-600 */
+    --accent-muted:    76  29 149;  /* #4c1d95 violet-900 */
+    --accent-light:   196 181 253;  /* #c4b5fd violet-300 */
+    --canvas-desk:     39  39  42;  /* zinc-800 */
+  }
+
   html {
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
@@ -102,6 +140,13 @@
   }
   .btn-danger {
     @apply bg-danger/10 hover:bg-danger/20 text-danger text-sm rounded-md px-3 py-1.5 transition-colors;
+  }
+
+  /* Login background — radial accent glow over the surface color, theme-aware */
+  .login-bg {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgb(var(--accent) / 0.18) 0%, transparent 70%),
+      rgb(var(--surface));
   }
 
   /* Workspace card */

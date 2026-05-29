@@ -12,7 +12,9 @@
   <script>
     (function() {
       var t = localStorage.getItem('theme');
-      if (t === 'dark') document.documentElement.classList.add('dark');
+      var dark = t === 'dark' ||
+        (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.documentElement.classList.add('dark');
     })();
   </script>
 </head>

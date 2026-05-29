@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const rgb = (v) => `rgb(var(${v}) / <alpha-value>)`;
+
 module.exports = {
   content: ["./src/**/*.{html,ts}"],
   darkMode: 'class',
@@ -9,33 +11,33 @@ module.exports = {
       },
       colors: {
         panel: {
-          DEFAULT: '#1e1b4b',
-          hover:   '#2d2a6e',
-          active:  '#3730a3',
-          border:  '#312e81',
-          header:  '#13113a',
+          DEFAULT: rgb('--panel'),
+          hover:   rgb('--panel-hover'),
+          active:  rgb('--panel-active'),
+          border:  rgb('--panel-border'),
+          header:  rgb('--panel-header'),
         },
         surface: {
-          DEFAULT: '#0f0e2a',
-          muted:   '#1a1847',
+          DEFAULT: rgb('--surface'),
+          muted:   rgb('--surface-muted'),
         },
         ink: {
-          primary:   '#ede9fe',
-          secondary: '#a5b4fc',
-          disabled:  '#6366f1',
+          primary:   rgb('--ink-primary'),
+          secondary: rgb('--ink-secondary'),
+          disabled:  rgb('--ink-disabled'),
         },
         accent: {
-          DEFAULT: '#8b5cf6',
-          hover:   '#7c3aed',
-          muted:   '#4c1d95',
-          light:   '#c4b5fd',
+          DEFAULT: rgb('--accent'),
+          hover:   rgb('--accent-hover'),
+          muted:   rgb('--accent-muted'),
+          light:   rgb('--accent-light'),
         },
         brand: {
           from: '#8b5cf6',
           to:   '#312e81',
         },
         canvas: {
-          desk:    '#e2e8f0',
+          desk:    rgb('--canvas-desk'),
           surface: '#ffffff',
         },
         danger:  '#ef4444',
