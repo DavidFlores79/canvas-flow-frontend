@@ -54,6 +54,18 @@
     (click)="aiGenerateClicked.emit()"
   ><span>✦</span><span>AI</span></button>
 
+  @if (hasImageSelection() && editorStore.canEdit()) {
+    <button
+      class="px-3 py-1 text-sm rounded-md transition-colors"
+      [class.bg-brand-100]="editorStore.activeTool() === 'crop'"
+      [class.text-brand-700]="editorStore.activeTool() === 'crop'"
+      [class.bg-gray-100]="editorStore.activeTool() !== 'crop'"
+      [class.text-gray-700]="editorStore.activeTool() !== 'crop'"
+      (click)="selectTool('crop')"
+      title="Crop image"
+    >Crop</button>
+  }
+
   <div class="w-px h-5 bg-gray-200 mx-2"></div>
 
   @if (hasSelection()) {

@@ -2,9 +2,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
+  Output,
   SimpleChanges,
   ViewChild,
   effect,
@@ -14,7 +16,7 @@ import {
 } from '@angular/core';
 import * as fabric from 'fabric';
 import { EditorStore, ShapeKind } from '../../../application/stores/editor.store';
-import { Layer, LayerProperties } from '../../../domain/models/layer.model';
+import { CropRect, Layer, LayerProperties } from '../../../domain/models/layer.model';
 
 @Component({
   selector: 'app-canvas',
@@ -22,6 +24,58 @@ import { Layer, LayerProperties } from '../../../domain/models/layer.model';
   template: `
     <div class="relative bg-white shadow-md" [style.width.px]="width" [style.height.px]="height">
       <canvas #canvasEl [width]="width" [height]="height"></canvas>
+
+      @if (isCropMode()) {
+        <!-- dark overlay outside crop rect -->
+        <div class="absolute inset-0 pointer-events-none z-20" style="background:transparent">
+          <!-- top -->
+          <div class="absolute bg-black/40" [style.left.px]="cropBox().x" [style.top.px]="0" [style.width.px]="cropBox().w" [style.height.px]="cropBox().y"></div>
+          <!-- bottom -->
+          <div class="absolute bg-black/40" [style.left.px]="cropBox().x" [style.top.px]="cropBox().y + cropBox().h" [style.width.px]="cropBox().w" [style.height.px]="height - cropBox().y - cropBox().h"></div>
+          <!-- left -->
+          <div class="absolute bg-black/40" [style.left.px]="0" [style.top.px]="0" [style.width.px]="cropBox().x" [style.height.px]="height"></div>
+          <!-- right -->
+          <div class="absolute bg-black/40" [style.left.px]="cropBox().x + cropBox().w" [style.top.px]="0" [style.width.px]="width - cropBox().x - cropBox().w" [style.height.px]="height"></div>
+        </div>
+
+        <!-- crop rect border + handles -->
+        <div class="absolute z-30 border-2 border-blue-500 box-border"
+          [style.left.px]="cropBox().x"
+          [style.top.px]="cropBox().y"
+          [style.width.px]="cropBox().w"
+          [style.height.px]="cropBox().h"
+        >
+          <!-- rule-of-thirds grid lines -->
+          <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute border-white/40 border-l" style="left:33.33%;top:0;bottom:0"></div>
+            <div class="absolute border-white/40 border-l" style="left:66.66%;top:0;bottom:0"></div>
+            <div class="absolute border-white/40 border-t" style="top:33.33%;left:0;right:0"></div>
+            <div class="absolute border-white/40 border-t" style="top:66.66%;left:0;right:0"></div>
+          </div>
+
+          <!-- corner handles -->
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-nw-resize -left-2 -top-2" (mousedown)="onHandleMousedown($event,'nw')"></div>
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-ne-resize -right-2 -top-2" (mousedown)="onHandleMousedown($event,'ne')"></div>
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-sw-resize -left-2 -bottom-2" (mousedown)="onHandleMousedown($event,'sw')"></div>
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-se-resize -right-2 -bottom-2" (mousedown)="onHandleMousedown($event,'se')"></div>
+
+          <!-- edge handles -->
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-n-resize -top-2" style="left:calc(50% - 8px)" (mousedown)="onHandleMousedown($event,'n')"></div>
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-s-resize -bottom-2" style="left:calc(50% - 8px)" (mousedown)="onHandleMousedown($event,'s')"></div>
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-w-resize -left-2" style="top:calc(50% - 8px)" (mousedown)="onHandleMousedown($event,'w')"></div>
+          <div class="absolute w-4 h-4 bg-white border-2 border-blue-600 cursor-e-resize -right-2" style="top:calc(50% - 8px)" (mousedown)="onHandleMousedown($event,'e')"></div>
+
+          <!-- drag the whole crop box -->
+          <div class="absolute inset-0 cursor-move" (mousedown)="onHandleMousedown($event,'move')"></div>
+        </div>
+
+        <!-- action bar -->
+        <div class="absolute top-3 left-1/2 -translate-x-1/2 flex gap-2 z-50 bg-white/90 rounded-lg px-3 py-1.5 shadow border border-gray-200">
+          <button class="px-3 py-1 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700" (click)="confirmCrop()">Apply Crop</button>
+          <button class="px-3 py-1 text-sm font-medium bg-white text-gray-700 rounded border border-gray-300 hover:bg-gray-50" (click)="cancelCrop()">Cancel</button>
+        </div>
+      }
+
       @if (contextMenu().visible) {
         <ul
           class="absolute z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm"
@@ -40,6 +94,7 @@ import { Layer, LayerProperties } from '../../../domain/models/layer.model';
 export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() width = 1200;
   @Input() height = 800;
+  @Output() readonly cropModeChanged = new EventEmitter<boolean>();
 
   @ViewChild('canvasEl', { static: true }) canvasEl!: ElementRef<HTMLCanvasElement>;
 
@@ -49,7 +104,37 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
   protected readonly editorStore = inject(EditorStore);
   protected readonly contextMenu = signal<{ visible: boolean; x: number; y: number }>({ visible: false, x: 0, y: 0 });
 
+  readonly isCropMode = signal(false);
+  readonly cropBox = signal<{ x: number; y: number; w: number; h: number }>({ x: 0, y: 0, w: 0, h: 0 });
+  private croppingLayerId: string | null = null;
+  private _cropImageBounds: { x: number; y: number; w: number; h: number } = { x: 0, y: 0, w: 0, h: 0 };
+  private _dragHandle: string | null = null;
+  private _dragStart: { mx: number; my: number; box: { x: number; y: number; w: number; h: number } } | null = null;
+  private _mousemoveHandler!: (e: MouseEvent) => void;
+  private _mouseupHandler!: (e: MouseEvent) => void;
+
   constructor() {
+    effect(() => {
+      const tool = this.editorStore.activeTool();
+      if (!this.canvas) return;
+      untracked(() => {
+        if (tool === 'crop') {
+          if (this.isCropMode()) return;
+          const selectedIds = this.editorStore.selectedLayerIds();
+          if (selectedIds.length === 1) {
+            const layer = this.editorStore.layers().find(l => l.id === selectedIds[0]);
+            if (layer?.type === 'image') {
+              this.enterCropMode(selectedIds[0]);
+              return;
+            }
+          }
+          this.editorStore.setActiveTool('select');
+        } else if (this.isCropMode()) {
+          this.exitCropMode();
+        }
+      });
+    });
+
     // Re-render whenever layers signal changes (handles add, remove, undo, redo)
     effect(() => {
       const layers = this.editorStore.layers();
@@ -145,7 +230,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
     // Create objects on canvas click based on active tool
     this.canvas.on('mouse:down', (e) => {
       const tool = this.editorStore.activeTool();
-      if (tool === 'select' || !this.editorStore.canEdit()) return;
+      if (tool === 'select' || tool === 'crop' || !this.editorStore.canEdit()) return;
 
       const point = e.scenePoint ?? this.canvas.getScenePoint(e.e);
       const nextZIndex = this.editorStore
@@ -215,6 +300,7 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
       }
 
       if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if (this.isCropMode()) return;
       const active = this.canvas.getActiveObject();
       if (!active || !this.editorStore.canEdit()) return;
       if (active instanceof fabric.Textbox && active.isEditing) return;
@@ -262,6 +348,24 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
                 scaleX,
                 scaleY,
               });
+              if (layer.properties.cropRect) {
+                const cr = layer.properties.cropRect;
+                // Image uses center origin; its top-left corner in canvas px is
+                // (layer.x - scaledW/2, layer.y - scaledH/2). cropRect is stored
+                // relative to that top-left, in natural px. clipPath with
+                // absolutePositioned:true uses canvas coordinates.
+                const cornerX = layer.properties.x - (imgEl.naturalWidth * scaleX) / 2;
+                const cornerY = layer.properties.y - (imgEl.naturalHeight * scaleY) / 2;
+                imageObj.clipPath = new fabric.Rect({
+                  left: cornerX + cr.left * scaleX,
+                  top: cornerY + cr.top * scaleY,
+                  width: cr.width * scaleX,
+                  height: cr.height * scaleY,
+                  originX: 'left',
+                  originY: 'top',
+                  absolutePositioned: true,
+                });
+              }
               this.applyObjectInteractivity(imageObj, this.editorStore.canEdit());
               imageObj.setCoords();
               (imageObj as fabric.FabricImage & { layerId: string }).layerId = layer.id;
@@ -555,6 +659,188 @@ export class CanvasComponent implements AfterViewInit, OnChanges, OnDestroy {
     a.href = url;
     a.download = filename;
     a.click();
+  }
+
+  private enterCropMode(layerId: string): void {
+    if (this.isCropMode()) this.exitCropMode();
+
+    const imageObj = this.canvas.getObjects().find(
+      (o) => (o as fabric.FabricObject & { layerId?: string }).layerId === layerId
+    ) as (fabric.FabricImage & { layerId?: string }) | undefined;
+
+    if (!(imageObj instanceof fabric.FabricImage)) {
+      this.editorStore.setActiveTool('select');
+      return;
+    }
+
+    const layer = this.editorStore.layers().find(l => l.id === layerId);
+    if (!layer) return;
+
+    imageObj.set({ selectable: false, evented: false, hasControls: false });
+    this.canvas.discardActiveObject();
+    this.canvas.requestRenderAll();
+
+    // The image uses center origin, so imageObj.left/top is the CENTER.
+    // getBoundingRect() gives the true top-left corner + size in canvas pixels.
+    const bounds = imageObj.getBoundingRect();
+    const ox = bounds.left;
+    const oy = bounds.top;
+    const imgW = bounds.width;
+    const imgH = bounds.height;
+
+    // naturalW/H needed for converting cropRect to/from natural px
+    const naturalW = (imageObj.getElement() as HTMLImageElement).naturalWidth || imgW;
+    const naturalH = (imageObj.getElement() as HTMLImageElement).naturalHeight || imgH;
+    const scaleX = imgW / naturalW;
+    const scaleY = imgH / naturalH;
+
+    this._cropImageBounds = { x: ox, y: oy, w: imgW, h: imgH };
+
+    let box: { x: number; y: number; w: number; h: number };
+    if (layer.properties.cropRect) {
+      box = {
+        x: ox + layer.properties.cropRect.left * scaleX,
+        y: oy + layer.properties.cropRect.top * scaleY,
+        w: layer.properties.cropRect.width * scaleX,
+        h: layer.properties.cropRect.height * scaleY,
+      };
+    } else {
+      box = { x: ox, y: oy, w: imgW, h: imgH };
+    }
+
+    this.cropBox.set(box);
+    this.croppingLayerId = layerId;
+
+    this._mousemoveHandler = (e: MouseEvent) => this._onCropMouseMove(e);
+    this._mouseupHandler = () => this._onCropMouseUp();
+    document.addEventListener('mousemove', this._mousemoveHandler);
+    document.addEventListener('mouseup', this._mouseupHandler);
+
+    this.isCropMode.set(true);
+    this.cropModeChanged.emit(true);
+  }
+
+  private exitCropMode(): void {
+    document.removeEventListener('mousemove', this._mousemoveHandler);
+    document.removeEventListener('mouseup', this._mouseupHandler);
+
+    if (this.croppingLayerId) {
+      const imageObj = this.canvas.getObjects().find(
+        (o) => (o as fabric.FabricObject & { layerId?: string }).layerId === this.croppingLayerId
+      );
+      if (imageObj) this.applyObjectInteractivity(imageObj, this.editorStore.canEdit());
+    }
+    this.croppingLayerId = null;
+    this._dragHandle = null;
+    this._dragStart = null;
+    this.isCropMode.set(false);
+    this.cropModeChanged.emit(false);
+    this.canvas.requestRenderAll();
+  }
+
+  onHandleMousedown(e: MouseEvent, handle: string): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this._dragHandle = handle;
+    this._dragStart = { mx: e.clientX, my: e.clientY, box: { ...this.cropBox() } };
+  }
+
+  private _onCropMouseMove(e: MouseEvent): void {
+    if (!this._dragHandle || !this._dragStart) return;
+    // The canvas is rendered inside a CSS scale() transform (editor zoom).
+    // Convert screen-pixel mouse deltas into native canvas pixels by dividing
+    // by the actual on-screen scale factor of the canvas element.
+    const rect = this.canvasEl.nativeElement.getBoundingClientRect();
+    const scale = rect.width / (this.width || 1) || 1;
+    const dx = (e.clientX - this._dragStart.mx) / scale;
+    const dy = (e.clientY - this._dragStart.my) / scale;
+    const s = this._dragStart.box;
+    const ib = this._cropImageBounds;
+    let { x, y, w, h } = s;
+    const minSize = 20;
+
+    switch (this._dragHandle) {
+      case 'move':
+        x = Math.max(ib.x, Math.min(ib.x + ib.w - w, s.x + dx));
+        y = Math.max(ib.y, Math.min(ib.y + ib.h - h, s.y + dy));
+        break;
+      case 'nw':
+        x = Math.max(ib.x, Math.min(s.x + s.w - minSize, s.x + dx));
+        y = Math.max(ib.y, Math.min(s.y + s.h - minSize, s.y + dy));
+        w = s.x + s.w - x;
+        h = s.y + s.h - y;
+        break;
+      case 'ne':
+        y = Math.max(ib.y, Math.min(s.y + s.h - minSize, s.y + dy));
+        w = Math.max(minSize, Math.min(ib.x + ib.w - s.x, s.w + dx));
+        h = s.y + s.h - y;
+        break;
+      case 'sw':
+        x = Math.max(ib.x, Math.min(s.x + s.w - minSize, s.x + dx));
+        w = s.x + s.w - x;
+        h = Math.max(minSize, Math.min(ib.y + ib.h - s.y, s.h + dy));
+        break;
+      case 'se':
+        w = Math.max(minSize, Math.min(ib.x + ib.w - s.x, s.w + dx));
+        h = Math.max(minSize, Math.min(ib.y + ib.h - s.y, s.h + dy));
+        break;
+      case 'n':
+        y = Math.max(ib.y, Math.min(s.y + s.h - minSize, s.y + dy));
+        h = s.y + s.h - y;
+        break;
+      case 's':
+        h = Math.max(minSize, Math.min(ib.y + ib.h - s.y, s.h + dy));
+        break;
+      case 'w':
+        x = Math.max(ib.x, Math.min(s.x + s.w - minSize, s.x + dx));
+        w = s.x + s.w - x;
+        break;
+      case 'e':
+        w = Math.max(minSize, Math.min(ib.x + ib.w - s.x, s.w + dx));
+        break;
+    }
+    this.cropBox.set({ x, y, w, h });
+  }
+
+  private _onCropMouseUp(): void {
+    this._dragHandle = null;
+    this._dragStart = null;
+  }
+
+  confirmCrop(): void {
+    if (!this.croppingLayerId) return;
+
+    const layer = this.editorStore.layers().find(l => l.id === this.croppingLayerId);
+    const imageObj = this.canvas.getObjects().find(
+      (o) => (o as fabric.FabricObject & { layerId?: string }).layerId === this.croppingLayerId
+    ) as fabric.FabricImage | undefined;
+
+    if (!layer || !(imageObj instanceof fabric.FabricImage)) return;
+
+    const bounds = imageObj.getBoundingRect();
+    const ox = bounds.left;
+    const oy = bounds.top;
+    const imgW = bounds.width;
+    const imgH = bounds.height;
+    const naturalW = (imageObj.getElement() as HTMLImageElement).naturalWidth || imgW;
+    const naturalH = (imageObj.getElement() as HTMLImageElement).naturalHeight || imgH;
+    const scaleX = imgW / naturalW;
+    const scaleY = imgH / naturalH;
+    const box = this.cropBox();
+
+    const cropRect: CropRect = {
+      left: Math.max(0, Math.min((box.x - ox) / scaleX, naturalW)),
+      top: Math.max(0, Math.min((box.y - oy) / scaleY, naturalH)),
+      width: Math.max(1, Math.min(box.w / scaleX, naturalW)),
+      height: Math.max(1, Math.min(box.h / scaleY, naturalH)),
+    };
+
+    this.editorStore.applyCrop(this.croppingLayerId, cropRect);
+  }
+
+  cancelCrop(): void {
+    this.exitCropMode();
+    this.editorStore.setActiveTool('select');
   }
 
   ngOnDestroy(): void {

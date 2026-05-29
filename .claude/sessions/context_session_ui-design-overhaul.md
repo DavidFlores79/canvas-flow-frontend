@@ -107,7 +107,7 @@ colors: {
 - `-webkit-font-smoothing: antialiased` on `html`
 
 ### Icon Library
-- Install: `yarn add lucide-angular`
+- Install: `pnpm add lucide-angular`
 - Icons: `MousePointer2`, `Type`, `Square`, `Minus`, `Undo2`, `Redo2`, `Copy2`, `Save`, `Download`, `Sparkles`, `ChevronDown`, `X`, `Plus`, `GripVertical`, `Sun`, `Moon`
 - Convention: `w-4 h-4` icon inside `w-8 h-8` button target
 
@@ -200,6 +200,8 @@ src/app/presentation/components/theme-toggle/
 | `org-switcher.component.html` | Dark select |
 | `theme-toggle.component.ts` (**NEW**) | Standalone toggle component |
 | `theme-toggle.component.html` (**NEW**) | Sun/Moon icon button |
+| `editor.component.ts` | Add `ThemeToggleComponent` to `imports: []` |
+| `dashboard.component.ts` | Add `ThemeToggleComponent` to `imports: []` |
 
 ---
 
@@ -213,7 +215,7 @@ src/app/presentation/components/theme-toggle/
 
 ## Dependencies to Install
 ```bash
-yarn add lucide-angular
+pnpm add lucide-angular
 ```
 
 ---
@@ -265,13 +267,18 @@ yarn add lucide-angular
 ## Gaps Fixed in v3
 
 ### Gap 1 — `app.html` default placeholder (missed entirely)
-`src/app/app.html` still contains the Angular scaffolding template (logo, pill links, inline `<style>`) rendered above `<router-outlet>` on every page. **Add to Phase 1:** replace entire file with just `<router-outlet />`.
+`src/app/app.html` contains the full Angular scaffolding template: a massive inline `<style>` block + Angular logo SVG + pill resource links + social icon links — ~250 lines total — all rendered above `<router-outlet>` on every page. **Add to Phase 1:** full file replacement with just `<router-outlet />`. This is a complete overwrite, not a small edit.
 
 ### Gap 2 — `canvas.component.ts` inline template (not a .html file — easy to miss)
 Uses hardcoded `bg-white`, `bg-white border-gray-200`, `hover:bg-red-50 hover:text-red-600` in an inline `template:` string. **Add to Phase 4:** update inline template classes to `dark:bg-panel dark:border-panel-border dark:hover:bg-danger/10 dark:text-ink-primary` on the context menu.
 
-### Gap 3 — `accent-brand-600` / `text-brand-600` in image-transform-panel (undefined token)
-Template uses `accent-brand-600` on range inputs, checkboxes, and the Apply button. `brand` is not a Tailwind token — it silently produces nothing. **Add to token block:** either add `brand` as an alias for `accent` (`brand: '#7c3aed'`), or explicitly replace all `accent-brand-600` → `accent-violet-500` and `text-brand-600` → `text-accent` during Phase 4.
+### Gap 3 — `accent-brand-600` / `text-brand-600` in image-transform-panel (undefined token) + existing brand scale conflict
+The current `tailwind.config.js` already has a `brand` token as a **numeric shade scale** (`brand.50` → `brand.900`). The new plan replaces this with `brand: { from, to }` (two gradient keys) — a **breaking rename**. Template uses `accent-brand-600` on range inputs, checkboxes, and the Apply button; this currently resolves to `brand.600` from the existing scale. After the config replacement, `brand-600` will be undefined and `brand.600` will silently vanish.
+
+**Fix (atomic — do both in the same step):**
+1. In `tailwind.config.js` Phase 1: replace the existing numeric `brand` scale with `brand: { from, to }` AND add `accent` token block as planned.
+2. In Phase 4 (`image-transform-panel.component.html`): sweep all `accent-brand-600` → `accent-[#7c3aed]` or `accent-violet-600`, and `text-brand-600` → `text-accent`.
+Do NOT do Phase 1 without Phase 4 — the template will break silently between those steps.
 
 ### Gap 4 — Layer names: no `name` field on the domain model
 `SlicePipe` + `layer.id | slice:0:8` is used because layers have no `name` property — only `type`, `id`, `content`. Decision: **show `layer.type` + 1-based index** (e.g., "image 1", "text 2"). Computed in the template using `$index` from `@for`. Remove `SlicePipe` from `LayersPanelComponent` imports.
@@ -297,6 +304,9 @@ canvas: {
 ```
 Dark mode desk: `dark:bg-zinc-800` (use built-in Tailwind token, no custom needed).
 
+### Gap 8 — `ThemeToggleComponent` parent imports missing from file change map
+`ThemeToggleComponent` is standalone — every component that uses it in its template must import it in its own `imports: []`. **Affected files:** `editor.component.ts` and `dashboard.component.ts`. Both are in the file change map above. Without this, Angular will throw an unknown element error at runtime.
+
 ### Gap 7 — `lucide-angular` needs importing per standalone component
 Every standalone component using lucide icons needs `LucideAngularModule` in its own `imports: []`. **Affected components:** `toolbar.component.ts` AND `theme-toggle.component.ts`. Add to plan: both must import `LucideAngularModule` and their specific icon constants individually.
 
@@ -306,3 +316,4 @@ Every standalone component using lucide icons needs `LucideAngularModule` in its
 - **v1 (2026-05-21):** Initial plan after full codebase exploration + web research + Angular agent advice
 - **v2 (2026-05-21):** Added full dark mode (`darkMode: 'class'` + ThemeToggleComponent) per user decision
 - **v3 (2026-05-21):** Gap analysis — fixed 7 missing items: app.html cleanup, canvas inline template, brand token, layer names, FOUC prevention, canvas-desk token, lucide-angular per-component imports
+- **v4 (2026-05-29):** Fixed 4 remaining gaps: `yarn` → `pnpm` in install commands; app.html full 250-line replacement scope documented; brand numeric scale → `{from,to}` conflict flagged as atomic migration with Phase 4; `ThemeToggleComponent` parent imports added to file change map for `editor.component.ts` and `dashboard.component.ts` (Gap 8)

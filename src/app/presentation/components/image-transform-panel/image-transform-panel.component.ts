@@ -94,7 +94,7 @@ export class ImageTransformPanelComponent {
     this.errorMsg.set('');
     this.transformedUrl.set(null);
     if (l) {
-      const { transforms: _t, ...rest } = l.properties;
+      const { transforms: _t, cropRect: _c, ...rest } = l.properties;
       this.editorStore.updateLayer(l.id, { properties: rest });
       if (l.content) this.loadImageMeta(l.content);
     }
