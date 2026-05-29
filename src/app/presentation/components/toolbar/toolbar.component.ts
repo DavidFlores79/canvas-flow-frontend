@@ -45,6 +45,10 @@ export class ToolbarComponent {
   protected showShapeMenu = false;
   protected readonly hasSelection = computed(() => this.editorStore.selectedLayers().length > 0);
   protected readonly selectionCount = computed(() => this.editorStore.selectedLayers().length);
+  protected readonly hasImageSelection = computed(() =>
+    this.editorStore.selectedLayers().length === 1 &&
+    this.editorStore.selectedLayers()[0].type === 'image'
+  );
 
   protected get activeShapeOption(): ShapeOption {
     return this.shapeOptions.find(s => s.kind === this.editorStore.activeShapeKind()) ?? this.shapeOptions[0];
