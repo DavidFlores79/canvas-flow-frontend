@@ -1,0 +1,11 @@
+<button
+  class="tool-btn"
+  (click)="toggle()"
+  [title]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+>
+  @if (isDark()) {
+    <svg lucideSun class="w-4 h-4" />
+  } @else {
+    <svg lucideMoon class="w-4 h-4" />
+  }
+</button>

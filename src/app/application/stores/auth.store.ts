@@ -134,7 +134,14 @@ export class AuthStore {
           name?: string;
           organizationId?: string;
           orgRole?: OrgRole;
+          exp?: number;
         };
+        const nowSecs = Math.floor(Date.now() / 1000);
+        if (payload.exp && payload.exp < nowSecs) {
+          // Access token expired — clear and stay logged out; refresh will be attempted by interceptor on next request
+          localStorage.removeItem(TOKEN_KEY);
+          return;
+        }
         this.currentUser.set({
           id: payload.sub ?? '',
           email: payload.email ?? '',

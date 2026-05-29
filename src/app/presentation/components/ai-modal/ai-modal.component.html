@@ -1,8 +1,8 @@
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" (click)="close()">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" (click)="close()">
+  <div class="bg-panel border border-panel-border rounded-2xl shadow-float w-full max-w-2xl mx-4 overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-brand-500 to-brand-700 px-5 py-4 flex items-center justify-between">
+    <div class="bg-gradient-to-r from-accent to-[#312e81] px-5 py-4 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-white text-xl">✦</span>
         <span class="text-white font-semibold text-lg">AI Image Generation</span>
@@ -16,14 +16,14 @@
     <!-- Body -->
     <div class="p-6 space-y-5">
       @if (!editorStore.canEdit()) {
-        <div class="px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700 text-center">
+        <div class="px-4 py-3 bg-warning/10 border border-warning/30 rounded-xl text-sm text-warning text-center">
           Read-only mode — you cannot generate images in this workspace.
         </div>
       } @else {
 
         <!-- Style cards -->
         <div>
-          <p class="text-sm font-medium text-gray-700 mb-2">Image style</p>
+          <p class="text-sm font-medium text-ink-secondary mb-2">Image style</p>
           <div class="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Image style">
             @for (style of styles; track style.id) {
               <button
@@ -31,12 +31,15 @@
                 role="radio"
                 [attr.aria-checked]="selectedStyle() === style.id"
                 (click)="selectedStyle.set(style.id)"
-                [class]="selectedStyle() === style.id
-                  ? 'flex flex-col items-center text-center p-2.5 rounded-xl border-2 border-brand-500 bg-brand-50 transition-all'
-                  : 'flex flex-col items-center text-center p-2.5 rounded-xl border-2 border-gray-200 bg-white hover:border-brand-300 transition-all'"
+                class="flex flex-col items-center text-center p-2.5 rounded-xl border-2 transition-all"
+                [class.border-accent]="selectedStyle() === style.id"
+                [class.bg-accent-muted]="selectedStyle() === style.id"
+                [class.border-panel-border]="selectedStyle() !== style.id"
+                [class.bg-panel-hover]="selectedStyle() !== style.id"
+                [class.hover:border-accent]="selectedStyle() !== style.id"
               >
-                <span class="text-xs font-semibold text-gray-800 leading-tight">{{ style.label }}</span>
-                <span class="text-[10px] text-gray-500 mt-0.5 leading-tight">{{ style.description }}</span>
+                <span class="text-xs font-semibold text-ink-primary leading-tight">{{ style.label }}</span>
+                <span class="text-[10px] text-ink-secondary mt-0.5 leading-tight">{{ style.description }}</span>
               </button>
             }
           </div>
@@ -44,7 +47,7 @@
 
         <!-- Size presets -->
         <div>
-          <p class="text-sm font-medium text-gray-700 mb-2">Output size</p>
+          <p class="text-sm font-medium text-ink-secondary mb-2">Output size</p>
           <div class="flex gap-2 flex-wrap" role="radiogroup" aria-label="Output size">
             @for (preset of sizePresets; track preset.id) {
               <button
@@ -52,9 +55,12 @@
                 role="radio"
                 [attr.aria-checked]="selectedSize() === preset.id"
                 (click)="selectedSize.set(preset.id)"
-                [class]="selectedSize() === preset.id
-                  ? 'flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all bg-brand-500 text-white'
-                  : 'flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                class="flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all"
+                [class.bg-accent]="selectedSize() === preset.id"
+                [class.text-white]="selectedSize() === preset.id"
+                [class.bg-panel-hover]="selectedSize() !== preset.id"
+                [class.text-ink-secondary]="selectedSize() !== preset.id"
+                [class.hover:bg-panel-active]="selectedSize() !== preset.id"
               >
                 <span class="text-xs font-bold leading-tight">{{ preset.ratio }}</span>
                 <span class="text-[10px] leading-tight opacity-80">{{ preset.label }}</span>
@@ -66,19 +72,23 @@
         <!-- Prompt + generate -->
         <form [formGroup]="form" (ngSubmit)="generate()" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Describe your image</label>
+            <label class="block text-sm font-medium text-ink-secondary mb-1.5">Describe your image</label>
             <textarea
               formControlName="prompt"
               rows="3"
               placeholder="A futuristic city at sunset with neon lights and flying cars…"
-              class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+              class="w-full bg-surface border border-panel-border rounded-xl px-4 py-3 text-sm text-ink-primary resize-none
+                     focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all
+                     placeholder:text-ink-disabled"
             ></textarea>
           </div>
 
           <button
             type="submit"
             [disabled]="form.invalid || isGenerating()"
-            class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-500 to-brand-700 text-white font-medium hover:from-brand-600 hover:to-brand-800 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
+            class="w-full py-3 rounded-xl bg-gradient-to-r from-accent to-[#312e81] text-white font-medium
+                   hover:from-accent-hover hover:to-[#3730a3] shadow-md hover:shadow-float transition-all
+                   flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             @if (isGenerating()) {
               <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
@@ -91,18 +101,18 @@
         </form>
 
         @if (error()) {
-          <div class="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <div class="text-sm text-danger bg-danger/10 border border-danger/30 rounded-xl px-4 py-3">
             {{ error() }}
           </div>
         }
 
         @if (generatedAssets().length > 0) {
           <div>
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Generated Images</p>
+            <p class="panel-section-label mb-3">Generated Images</p>
             <div class="flex gap-3 overflow-x-auto pb-1">
               @for (asset of generatedAssets(); track asset.id) {
                 <button
-                  class="flex-none w-36 h-36 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-400 transition-all shadow-sm hover:shadow-md"
+                  class="flex-none w-36 h-36 rounded-xl overflow-hidden border-2 border-transparent hover:border-accent transition-all shadow-sm hover:shadow-panel"
                   (click)="addToCanvas(asset)"
                 >
                   <img [src]="asset.url" alt="AI generated" class="w-full h-full object-cover" />

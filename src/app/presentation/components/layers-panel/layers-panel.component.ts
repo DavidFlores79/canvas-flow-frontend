@@ -1,11 +1,10 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { SlicePipe } from '@angular/common';
 import { EditorStore } from '../../../application/stores/editor.store';
 
 @Component({
   selector: 'app-layers-panel',
   standalone: true,
-  imports: [SlicePipe],
+  imports: [],
   templateUrl: './layers-panel.component.html',
 })
 export class LayersPanelComponent {

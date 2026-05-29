@@ -9,6 +9,13 @@ export interface LayerTransforms {
   height?: number;
 }
 
+export interface CropRect {
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 export interface LayerProperties {
   readonly x: number;
   readonly y: number;
@@ -17,6 +24,7 @@ export interface LayerProperties {
   readonly rotation: number;
   readonly zIndex: number;
   readonly transforms?: LayerTransforms;
+  readonly cropRect?: CropRect;
   readonly fontFamily?: string;
   readonly fontSize?: number;
   readonly fontWeight?: 'normal' | 'bold';

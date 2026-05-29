@@ -1,46 +1,49 @@
-<div class="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200">
-  @for (tool of tools; track tool.key) {
-    <button
-      class="px-3 py-1 text-sm rounded-md transition-colors"
-      [class.bg-brand-100]="editorStore.activeTool() === tool.key"
-      [class.text-brand-700]="editorStore.activeTool() === tool.key"
-      [class.bg-gray-100]="editorStore.activeTool() !== tool.key"
-      [class.text-gray-700]="editorStore.activeTool() !== tool.key"
-      [disabled]="!editorStore.canEdit()"
-      (click)="selectTool(tool.key)"
-    >
-      {{ tool.label }}
-    </button>
-  }
+<div class="flex items-center gap-1 px-3 py-2 bg-panel-header border-b border-panel-border flex-shrink-0">
 
+  <!-- Select tool -->
+  <button
+    class="tool-btn"
+    [class.tool-btn-active]="editorStore.activeTool() === 'select'"
+    [disabled]="!editorStore.canEdit()"
+    (click)="selectTool('select')"
+    title="Select"
+  >
+    <svg lucideMousePointer2 class="w-4 h-4" />
+  </button>
+
+  <!-- Text tool -->
+  <button
+    class="tool-btn"
+    [class.tool-btn-active]="editorStore.activeTool() === 'text'"
+    [disabled]="!editorStore.canEdit()"
+    (click)="selectTool('text')"
+    title="Text"
+  >
+    <svg lucideType class="w-4 h-4" />
+  </button>
+
+  <!-- Shape tool + dropdown -->
   <div class="relative">
     <button
-      class="flex items-center gap-1 px-3 py-1 text-sm rounded-md transition-colors"
-      [class.bg-brand-100]="editorStore.activeTool() === 'shape'"
-      [class.text-brand-700]="editorStore.activeTool() === 'shape'"
-      [class.bg-gray-100]="editorStore.activeTool() !== 'shape'"
-      [class.text-gray-700]="editorStore.activeTool() !== 'shape'"
+      class="tool-btn flex items-center gap-0.5 w-auto px-2"
+      [class.tool-btn-active]="editorStore.activeTool() === 'shape'"
       [disabled]="!editorStore.canEdit()"
       (click)="showShapeMenu = !showShapeMenu"
+      title="Shape"
     >
-      <span>{{ activeShapeOption.icon }}</span>
-      <span>{{ activeShapeOption.label }}</span>
-      <span class="text-xs opacity-60">▾</span>
+      <svg lucideSquare class="w-4 h-4" />
+      <svg lucideChevronDown class="w-3 h-3 opacity-60" />
     </button>
 
     @if (showShapeMenu) {
-      <div
-        class="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm min-w-[150px]"
-        (mouseleave)="showShapeMenu = false"
-      >
+      <div class="dropdown-menu" (mouseleave)="showShapeMenu = false">
         @for (option of shapeOptions; track option.kind) {
           <button
-            class="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50"
-            [class.text-brand-700]="editorStore.activeShapeKind() === option.kind"
-            [class.font-medium]="editorStore.activeShapeKind() === option.kind"
+            class="dropdown-item"
+            [class.dropdown-item-active]="editorStore.activeShapeKind() === option.kind"
             (click)="selectShape(option.kind)"
           >
-            <span class="w-4 text-center">{{ option.icon }}</span>
+            <span class="w-4 text-center text-base leading-none">{{ option.icon }}</span>
             <span>{{ option.label }}</span>
           </button>
         }
@@ -48,89 +51,137 @@
     }
   </div>
 
+  <div class="tool-divider"></div>
+
+  <!-- AI button -->
   <button
-    class="bg-gradient-to-r from-brand-500 to-brand-700 text-white px-3 py-1 text-sm rounded-md hover:from-brand-600 hover:to-brand-800 shadow-sm transition-all disabled:opacity-40 flex items-center gap-1.5"
+    class="flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md
+           bg-gradient-to-r from-accent to-[#312e81] text-white
+           hover:from-accent-hover hover:to-[#3730a3] shadow-sm transition-all
+           disabled:opacity-40"
     [disabled]="!editorStore.canEdit()"
     (click)="aiGenerateClicked.emit()"
-  ><span>✦</span><span>AI</span></button>
+    title="AI Generate"
+  >
+    <svg lucideSparkles class="w-3.5 h-3.5" />
+    <span>AI</span>
+  </button>
 
-  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+  <!-- Crop (contextual) -->
+  @if (hasImageSelection() && editorStore.canEdit()) {
+    <button
+      class="tool-btn"
+      [class.tool-btn-active]="editorStore.activeTool() === 'crop'"
+      (click)="selectTool('crop')"
+      title="Crop image"
+    >
+      <svg lucideCrop class="w-4 h-4" />
+    </button>
+  }
 
+  <div class="tool-divider"></div>
+
+  <!-- Duplicate (contextual) -->
   @if (hasSelection()) {
     <button
-      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+      class="tool-btn"
       [disabled]="!editorStore.canEdit()"
       (click)="duplicate()"
       title="Duplicate selected layer"
-    >Duplicate</button>
+    >
+      <svg lucideCopy class="w-4 h-4" />
+    </button>
   }
 
+  <!-- Undo -->
   <button
-    class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+    class="tool-btn"
     [disabled]="!editorStore.canEdit()"
     (click)="undo()"
-  >Undo</button>
+    title="Undo"
+  >
+    <svg lucideUndo2 class="w-4 h-4" />
+  </button>
 
+  <!-- Redo -->
   <button
-    class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-40"
+    class="tool-btn"
     [disabled]="!editorStore.canEdit()"
     (click)="redo()"
-  >Redo</button>
+    title="Redo"
+  >
+    <svg lucideRedo2 class="w-4 h-4" />
+  </button>
 
-  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+  <div class="tool-divider"></div>
 
-  <label class="flex items-center gap-2 text-xs text-gray-600">
-    <span>Canvas</span>
+  <!-- Canvas background -->
+  <label class="flex items-center gap-1.5 text-xs text-ink-secondary cursor-pointer">
+    <span class="text-ink-disabled">Canvas</span>
     <input
       type="color"
-      class="w-8 h-6 p-0 border border-gray-200 rounded cursor-pointer bg-white"
+      class="w-7 h-6 p-0.5 border border-panel-border rounded cursor-pointer bg-panel"
       [value]="editorStore.canvasBackground() ?? '#ffffff'"
       (input)="onCanvasBackgroundChange($event)"
       title="Canvas background"
     />
     <button
-      class="px-2 py-1 rounded border text-[11px]"
-      [class.border-brand-300]="editorStore.canvasBackground() === null"
-      [class.text-brand-700]="editorStore.canvasBackground() === null"
-      [class.bg-brand-50]="editorStore.canvasBackground() === null"
-      [class.border-gray-200]="editorStore.canvasBackground() !== null"
-      [class.text-gray-600]="editorStore.canvasBackground() !== null"
+      class="px-2 py-0.5 rounded border text-[11px] transition-colors"
+      [class.border-accent]="editorStore.canvasBackground() === null"
+      [class.text-accent-light]="editorStore.canvasBackground() === null"
+      [class.bg-accent-muted]="editorStore.canvasBackground() === null"
+      [class.border-panel-border]="editorStore.canvasBackground() !== null"
+      [class.text-ink-disabled]="editorStore.canvasBackground() !== null"
       (click)="setTransparentBackground()"
       title="Set transparent canvas"
     >Transparent</button>
   </label>
 
-  <div class="w-px h-5 bg-gray-200 mx-2"></div>
+  <div class="flex-1"></div>
 
+  <div class="tool-divider"></div>
+
+  <!-- Save -->
   <button
-    class="px-3 py-1 text-sm rounded-md hover:bg-brand-700 disabled:opacity-40 text-white transition-colors"
-    [class.bg-brand-600]="!editorStore.isDirty()"
-    [class.bg-orange-500]="editorStore.isDirty()"
+    class="flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md text-white transition-colors disabled:opacity-40"
+    [class.bg-accent]="!editorStore.isDirty()"
+    [class.bg-warning]="editorStore.isDirty()"
+    [class.animate-dirty-pulse]="editorStore.isDirty()"
     [disabled]="!editorStore.canEdit() || editorStore.isSaving()"
     (click)="save()"
-  >{{ editorStore.isSaving() ? 'Saving...' : (editorStore.isDirty() ? 'Save*' : 'Save') }}</button>
+    title="Save"
+  >
+    <svg lucideSave class="w-3.5 h-3.5" />
+    <span>{{ editorStore.isSaving() ? 'Saving…' : (editorStore.isDirty() ? 'Save*' : 'Save') }}</span>
+  </button>
 
+  <!-- Export -->
   <div class="relative">
     <button
-      class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 whitespace-nowrap"
+      class="flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md
+             bg-panel-hover border border-panel-border text-ink-secondary
+             hover:bg-panel-active hover:text-ink-primary transition-colors whitespace-nowrap"
       (click)="showExportMenu = !showExportMenu"
-    >{{ hasSelection() ? 'Export selection' : 'Export canvas' }} ▾</button>
+      title="Export"
+    >
+      <svg lucideDownload class="w-3.5 h-3.5" />
+      <span>{{ hasSelection() ? 'Selection' : 'Export' }}</span>
+      <svg lucideChevronDown class="w-3 h-3 opacity-60" />
+    </button>
 
     @if (showExportMenu) {
       <div
-        class="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded shadow-lg py-1 text-sm min-w-[180px]"
+        class="dropdown-menu right-0 left-auto min-w-[180px]"
         (mouseleave)="showExportMenu = false"
       >
         @if (hasSelection()) {
-          <div class="px-3 py-2 mb-1 mx-1 rounded bg-amber-50 border border-amber-200 text-xs text-amber-700 leading-snug">
-            Only the {{ selectionCount() === 1 ? 'selected element' : selectionCount() + ' selected elements' }} will be exported.
+          <div class="px-3 py-2 mb-1 mx-1 rounded bg-warning/10 border border-warning/30 text-xs text-warning/90 leading-snug">
+            Only {{ selectionCount() === 1 ? 'the selected element' : selectionCount() + ' selected elements' }} will be exported.
           </div>
         }
-        <ul>
-          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('png')">PNG</li>
-          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('jpeg')">JPEG</li>
-          <li class="px-4 py-2 hover:bg-gray-50 cursor-pointer" (click)="export('svg')">SVG</li>
-        </ul>
+        <button class="dropdown-item" (click)="export('png')">PNG</button>
+        <button class="dropdown-item" (click)="export('jpeg')">JPEG</button>
+        <button class="dropdown-item" (click)="export('svg')">SVG</button>
       </div>
     }
   </div>

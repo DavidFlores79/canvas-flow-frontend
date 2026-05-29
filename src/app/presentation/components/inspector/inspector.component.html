@@ -1,133 +1,130 @@
-<div class="p-4">
-  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Inspector</h3>
+<div class="p-3 space-y-3">
+  <p class="panel-section-label">Inspector</p>
 
   @if (editorStore.activeProject()) {
-    <div class="mb-4 border border-gray-200 rounded-md p-3 space-y-2">
-      <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Canvas Size</p>
+    <div class="panel-card space-y-2">
+      <p class="panel-section-label">Canvas Size</p>
 
-      <label class="block text-xs text-gray-500">
-        Width
+      <label class="block">
+        <span class="inspector-label">Width</span>
         <input
           type="number"
           min="320"
-          class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+          class="inspector-input"
           [value]="canvasWidth()"
           (input)="onWidthInput($event)"
         />
       </label>
 
-      <label class="block text-xs text-gray-500">
-        Height
+      <label class="block">
+        <span class="inspector-label">Height</span>
         <input
           type="number"
           min="240"
-          class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+          class="inspector-input"
           [value]="canvasHeight()"
           (input)="onHeightInput($event)"
         />
       </label>
 
       @if (pendingConfirm()) {
-        <div class="rounded-md bg-red-50 border border-red-200 px-2 py-2 space-y-2">
-          <p class="text-xs text-red-700 leading-snug">
-            {{ layersOutsideCount() }} {{ layersOutsideCount() === 1 ? 'layer' : 'layers' }} will be removed — {{ layersOutsideCount() === 1 ? 'it falls' : 'they fall' }} completely outside the new canvas. This cannot be undone after saving.
+        <div class="rounded-md bg-danger/10 border border-danger/30 px-2 py-2 space-y-2">
+          <p class="text-xs text-danger leading-snug">
+            {{ layersOutsideCount() }} {{ layersOutsideCount() === 1 ? 'layer' : 'layers' }} will be removed. This cannot be undone.
           </p>
           <div class="flex gap-2">
-            <button
-              class="flex-1 text-xs bg-red-600 text-white rounded px-2 py-1 hover:bg-red-700"
-              (click)="applyCanvasSize()"
-            >Confirm</button>
-            <button
-              class="flex-1 text-xs bg-gray-100 text-gray-700 rounded px-2 py-1 hover:bg-gray-200"
-              (click)="cancelApply()"
-            >Cancel</button>
+            <button class="flex-1 text-xs bg-danger text-white rounded px-2 py-1 hover:bg-danger/80 transition-colors" (click)="applyCanvasSize()">Confirm</button>
+            <button class="btn-ghost flex-1 text-xs" (click)="cancelApply()">Cancel</button>
           </div>
         </div>
       } @else {
-        <button
-          class="w-full text-xs bg-brand-50 text-brand-700 rounded px-2 py-1 hover:bg-brand-100"
-          (click)="applyCanvasSize()"
-        >Apply</button>
+        <button class="w-full text-xs bg-accent-muted text-accent-light rounded px-2 py-1 hover:bg-accent/20 transition-colors" (click)="applyCanvasSize()">Apply</button>
       }
     </div>
   }
 
   @if (editorStore.selectedLayers().length === 1) {
     @let layer = editorStore.selectedLayers()[0];
-    <div class="space-y-2 text-sm">
-      <div class="flex justify-between">
-        <span class="text-gray-500">Type</span>
-        <span class="font-medium">{{ layer.type }}</span>
+    <div class="space-y-1.5 text-sm">
+      <div class="inspector-row">
+        <span class="inspector-row-key">Type</span>
+        <span class="inspector-value capitalize">{{ layer.type }}</span>
       </div>
-      <div class="flex justify-between">
-        <span class="text-gray-500">X</span>
-        <span class="font-medium">{{ round(layer.properties.x) }}</span>
+      <div class="inspector-row">
+        <span class="inspector-row-key">X</span>
+        <span class="inspector-value">{{ round(layer.properties.x) }}</span>
       </div>
-      <div class="flex justify-between">
-        <span class="text-gray-500">Y</span>
-        <span class="font-medium">{{ round(layer.properties.y) }}</span>
+      <div class="inspector-row">
+        <span class="inspector-row-key">Y</span>
+        <span class="inspector-value">{{ round(layer.properties.y) }}</span>
       </div>
-      <div class="flex justify-between">
-        <span class="text-gray-500">W</span>
-        <span class="font-medium">{{ round(layer.properties.width) }}</span>
+      <div class="inspector-row">
+        <span class="inspector-row-key">W</span>
+        <span class="inspector-value">{{ round(layer.properties.width) }}</span>
       </div>
-      <div class="flex justify-between">
-        <span class="text-gray-500">H</span>
-        <span class="font-medium">{{ round(layer.properties.height) }}</span>
+      <div class="inspector-row">
+        <span class="inspector-row-key">H</span>
+        <span class="inspector-value">{{ round(layer.properties.height) }}</span>
       </div>
-      <div class="flex justify-between">
-        <span class="text-gray-500">Rotation</span>
-        <span class="font-medium">{{ round(layer.properties.rotation) }}°</span>
+      <div class="inspector-row">
+        <span class="inspector-row-key">Rotation</span>
+        <span class="inspector-value">{{ round(layer.properties.rotation) }}°</span>
       </div>
     </div>
 
     @if (layer.type === 'text') {
-      <div class="mt-3 border-t border-gray-100 pt-3 space-y-3">
-        <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Text Style</p>
+      <div class="border-t border-panel-border pt-3 space-y-3">
+        <p class="panel-section-label">Text Style</p>
 
-        <label class="block text-xs text-gray-500">
-          Font
+        <label class="block">
+          <span class="inspector-label">Font</span>
           <select
-            class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm bg-white"
+            class="inspector-input"
             [value]="layer.properties.fontFamily ?? 'Arial'"
             (change)="onFontFamilyChange($event, layer.id)"
           >
             @for (font of FONT_FAMILIES; track font) {
-              <option [value]="font">{{ font }}</option>
+              <option [value]="font" class="bg-surface text-ink-primary">{{ font }}</option>
             }
           </select>
         </label>
 
-        <label class="block text-xs text-gray-500">
-          Size
+        <label class="block">
+          <span class="inspector-label">Size</span>
           <input
             type="number"
             min="6"
             max="400"
-            class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+            class="inspector-input"
             [value]="layer.properties.fontSize ?? 24"
             (change)="onFontSizeChange($event, layer.id)"
           />
         </label>
 
         <div>
-          <p class="text-xs text-gray-500 mb-1">Style</p>
+          <p class="inspector-label">Style</p>
           <div class="flex gap-1">
             <button
-              class="flex-1 py-1 rounded text-sm font-bold border"
-              [class]="(layer.properties.fontWeight ?? 'normal') === 'bold' ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
+              class="flex-1 py-1 rounded text-sm font-bold border transition-colors"
+              [class]="(layer.properties.fontWeight ?? 'normal') === 'bold'
+                ? 'bg-accent/20 border-accent text-accent-light'
+                : 'bg-surface border-panel-border text-ink-secondary'"
               (click)="onFontWeightToggle(layer.id, layer.properties.fontWeight ?? 'normal')"
               title="Bold"
             >B</button>
             <button
-              class="flex-1 py-1 rounded text-sm italic border"
-              [class]="(layer.properties.fontStyle ?? 'normal') === 'italic' ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
+              class="flex-1 py-1 rounded text-sm italic border transition-colors"
+              [class]="(layer.properties.fontStyle ?? 'normal') === 'italic'
+                ? 'bg-accent/20 border-accent text-accent-light'
+                : 'bg-surface border-panel-border text-ink-secondary'"
               (click)="onFontStyleToggle(layer.id, layer.properties.fontStyle ?? 'normal')"
               title="Italic"
             >I</button>
             <button
-              class="flex-1 py-1 rounded text-sm underline border"
-              [class]="(layer.properties.underline ?? false) ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
+              class="flex-1 py-1 rounded text-sm underline border transition-colors"
+              [class]="(layer.properties.underline ?? false)
+                ? 'bg-accent/20 border-accent text-accent-light'
+                : 'bg-surface border-panel-border text-ink-secondary'"
               (click)="onUnderlineToggle(layer.id, layer.properties.underline ?? false)"
               title="Underline"
             >U</button>
@@ -135,70 +132,72 @@
         </div>
 
         <div>
-          <p class="text-xs text-gray-500 mb-1">Align</p>
+          <p class="inspector-label">Align</p>
           <div class="flex gap-1">
             @for (align of TEXT_ALIGNS; track align) {
               <button
-                class="flex-1 py-1 rounded text-xs border"
-                [class]="(layer.properties.textAlign ?? 'left') === align ? 'bg-brand-100 border-brand-400 text-brand-700' : 'bg-white border-gray-200 text-gray-600'"
+                class="flex-1 py-1 rounded text-xs border transition-colors"
+                [class]="(layer.properties.textAlign ?? 'left') === align
+                  ? 'bg-accent/20 border-accent text-accent-light'
+                  : 'bg-surface border-panel-border text-ink-secondary'"
                 (click)="onTextAlignChange(align, layer.id)"
               >{{ align }}</button>
             }
           </div>
         </div>
 
-        <label class="block text-xs text-gray-500">
-          Color
+        <label class="block">
+          <span class="inspector-label">Color</span>
           <div class="mt-1 flex items-center gap-2">
             <input
               type="color"
-              class="h-7 w-10 rounded border border-gray-200 cursor-pointer p-0.5"
+              class="h-7 w-10 rounded border border-panel-border cursor-pointer p-0.5 bg-surface"
               [value]="layer.properties.textColor ?? '#000000'"
               (input)="onTextColorChange($event, layer.id)"
             />
-            <span class="text-xs text-gray-400">{{ layer.properties.textColor ?? '#000000' }}</span>
+            <span class="text-xs text-ink-disabled">{{ layer.properties.textColor ?? '#000000' }}</span>
           </div>
         </label>
       </div>
     }
 
     @if (layer.type === 'shape') {
-      <div class="mt-3 border-t border-gray-100 pt-3 space-y-3">
-        <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Shape Style</p>
+      <div class="border-t border-panel-border pt-3 space-y-3">
+        <p class="panel-section-label">Shape Style</p>
 
-        <label class="block text-xs text-gray-500">
-          Fill
+        <label class="block">
+          <span class="inspector-label">Fill</span>
           <div class="mt-1 flex items-center gap-2">
             <input
               type="color"
-              class="h-7 w-10 rounded border border-gray-200 cursor-pointer p-0.5"
+              class="h-7 w-10 rounded border border-panel-border cursor-pointer p-0.5 bg-surface"
               [value]="layer.properties.fillColor ?? '#dbeafe'"
               (input)="onFillColorChange($event, layer.id)"
             />
-            <span class="text-xs text-gray-400">{{ layer.properties.fillColor ?? '#dbeafe' }}</span>
+            <span class="text-xs text-ink-disabled">{{ layer.properties.fillColor ?? '#dbeafe' }}</span>
           </div>
         </label>
 
-        <label class="block text-xs text-gray-500">
-          Stroke
+        <label class="block">
+          <span class="inspector-label">Stroke</span>
           <div class="mt-1 flex items-center gap-2">
             <input
               type="color"
-              class="h-7 w-10 rounded border border-gray-200 cursor-pointer p-0.5"
+              class="h-7 w-10 rounded border border-panel-border cursor-pointer p-0.5 bg-surface"
               [value]="layer.properties.strokeColor ?? '#60a5fa'"
               (input)="onStrokeColorChange($event, layer.id)"
             />
-            <span class="text-xs text-gray-400">{{ layer.properties.strokeColor ?? '#60a5fa' }}</span>
+            <span class="text-xs text-ink-disabled">{{ layer.properties.strokeColor ?? '#60a5fa' }}</span>
           </div>
         </label>
 
-        <label class="block text-xs text-gray-500">
-          Stroke width
+        <label class="block">
+          <span class="inspector-label">Stroke width</span>
           <input
             type="number"
             min="0"
             max="50"
-            class="mt-1 w-full border border-gray-200 rounded px-2 py-1 text-sm"
+            class="inspector-input"
             [value]="layer.properties.strokeWidth ?? 1"
             (change)="onStrokeWidthChange($event, layer.id)"
           />
@@ -211,6 +210,6 @@
     }
 
   } @else {
-    <p class="text-xs text-gray-400">Select a layer to inspect</p>
+    <p class="text-xs text-ink-disabled">Select a layer to inspect</p>
   }
 </div>

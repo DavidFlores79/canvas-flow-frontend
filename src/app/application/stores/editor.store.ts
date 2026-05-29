@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Layer } from '../../domain/models/layer.model';
+import { CropRect, Layer } from '../../domain/models/layer.model';
 import { Project } from '../../domain/models/project.model';
 import { WorkspaceRole } from '../../domain/models/user.model';
 import { LayerApiService } from '../../data/services/layer-api.service';
@@ -9,7 +9,7 @@ function layersKey(layers: Layer[]): string {
   return JSON.stringify(layers.map(l => ({ ...l })));
 }
 
-export type ToolType = 'select' | 'text' | 'shape';
+export type ToolType = 'select' | 'text' | 'shape' | 'crop';
 export type ShapeKind = 'rect' | 'ellipse' | 'triangle' | 'line' | 'dashed-line' | 'star' | 'arrow';
 
 @Injectable({ providedIn: 'root' })
@@ -231,6 +231,26 @@ export class EditorStore {
     };
     this.commitHistory([...this.layers(), clone]);
     this.selectedLayerIds.set([clone.id]);
+  }
+
+  applyCrop(layerId: string, cropRect: CropRect): void {
+    const layer = this.layers().find(l => l.id === layerId);
+    if (!layer) return;
+    const next = this.layers().map(l =>
+      l.id === layerId ? { ...l, properties: { ...l.properties, cropRect } } : l
+    );
+    this.commitHistory(next);
+    this.setActiveTool('select');
+  }
+
+  clearCrop(layerId: string): void {
+    const layer = this.layers().find(l => l.id === layerId);
+    if (!layer) return;
+    const { cropRect: _c, ...rest } = layer.properties;
+    const next = this.layers().map(l =>
+      l.id === layerId ? { ...l, properties: rest } : l
+    );
+    this.commitHistory(next);
   }
 
   removeLayer(id: string): void {

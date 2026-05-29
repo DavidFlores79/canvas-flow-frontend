@@ -14,6 +14,10 @@ export class LoginComponent {
 
   protected showPassword = false;
 
+  constructor() {
+    this.authStore.error.set(null);
+  }
+
   protected readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
